@@ -1,0 +1,28 @@
+name: Deploy to Azure
+ 
+on:
+  workflow_run:
+    workflows: ["Tag version"]
+    types:
+      - completed
+  workflow_dispatch:
+    
+jobs:
+  deploy_to_azure:
+    name: 'Deploy to Azure'
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+    - name: Login to Azure
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        
+    - name: Deploy Container App
+      uses: azure/container-apps-deploy-action@v1
+      with:
+        imageToDeploy: abeseler/bslr:latest
+        registryUrl: docker.io
+        containerAppName: beseler-net
+        resourceGroup: ${{ secrets.AZURE_RESOURCE_GROUP }}
