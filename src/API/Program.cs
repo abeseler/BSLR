@@ -22,12 +22,10 @@ app.UseExceptionHandler(app =>
 
 app.UseInfrastructure();
 app.UseSerilogRequestLogging();
-app.UseRouting();
 app.UseAntiforgery();
 
 var versionSet = app.NewApiVersionSet()
     .HasApiVersion(new ApiVersion(1))
-    .HasApiVersion(new ApiVersion(2))
     .ReportApiVersions()
     .Build();
 

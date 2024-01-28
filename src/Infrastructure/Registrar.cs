@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.AzureAppConfiguration;
 using Microsoft.Extensions.DependencyInjection;
+using SendGrid.Extensions.DependencyInjection;
 
 namespace Beseler.Infrastructure;
 
@@ -37,6 +38,11 @@ public static class Registrar
         builder.Services
             .AddSingleton<IDatabaseConnector, DatabaseConnector>()
             .AddScoped<IEmailService, SendGridEmailService>();
+
+        builder.Services.AddSendGrid(options =>
+        {
+            options.ApiKey = builder.Configuration.GetValue<string>("SendGrid:ApiKey");
+        });
 
         return builder;
     }
