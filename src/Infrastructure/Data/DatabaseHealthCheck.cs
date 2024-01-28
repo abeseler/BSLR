@@ -5,11 +5,11 @@ namespace Beseler.Infrastructure.Data;
 
 public sealed class DatabaseHealthCheck(IDatabaseConnector dbConnector) : IHealthCheck
 {
-    public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
+    public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken stoppingToken = default)
     {
         try
         {
-            using var connection = await dbConnector.ConnectAsync(cancellationToken);
+            using var connection = await dbConnector.ConnectAsync(stoppingToken);
             await connection.QueryAsync("SELECT 1");
             return HealthCheckResult.Healthy();
         }

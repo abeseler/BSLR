@@ -1,5 +1,7 @@
 ﻿using Azure.Identity;
 using Beseler.Infrastructure.Data;
+using Beseler.Infrastructure.Services;
+using Beseler.Infrastructure.Services.SendGrid;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.AzureAppConfiguration;
@@ -28,9 +30,13 @@ public static class Registrar
             builder.Services.AddAzureAppConfiguration();
         }
 
-        builder.Services.AddOptions<ConnectionStringOptions>().BindConfiguration(ConnectionStringOptions.SectionName);
+        builder.Services
+            .BindConfiguration<ConnectionStringOptions>()
+            .BindConfiguration<SendGridOptions>();
 
-        builder.Services.AddSingleton<IDatabaseConnector, DatabaseConnector>();
+        builder.Services
+            .AddSingleton<IDatabaseConnector, DatabaseConnector>()
+            .AddScoped<IEmailService, SendGridEmailService>();
 
         return builder;
     }
@@ -42,4 +48,15 @@ public static class Registrar
             app.UseAzureAppConfiguration();
         }
     }
+
+    private static IServiceCollection BindConfiguration<T>(this IServiceCollection services) where T : class, IConfigurationSection
+    {
+        services.AddOptions<T>().BindConfiguration(T.SectionName);
+        return services;
+    }
+}
+
+internal interface IConfigurationSection
+{
+    static abstract string SectionName { get; }
 }

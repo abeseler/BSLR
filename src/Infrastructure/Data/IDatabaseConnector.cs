@@ -4,5 +4,5 @@ namespace Beseler.Infrastructure.Data;
 
 public interface IDatabaseConnector
 {
-    public Task<IDbConnection> ConnectAsync(CancellationToken cancellationToken = default);
+    Task<IDbConnection> ConnectAsync(CancellationToken stoppingToken = default);
 }

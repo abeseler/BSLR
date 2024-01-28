@@ -6,10 +6,10 @@ namespace Beseler.Infrastructure.Data;
 
 internal sealed class DatabaseConnector(IOptionsMonitor<ConnectionStringOptions> connectionStrings) : IDatabaseConnector
 {
-    public async Task<IDbConnection> ConnectAsync(CancellationToken cancellationToken = default)
+    public async Task<IDbConnection> ConnectAsync(CancellationToken stoppingToken = default)
     {
         var connection = new SqlConnection(connectionStrings.CurrentValue.Database);
-        await connection.OpenAsync(cancellationToken);
+        await connection.OpenAsync(stoppingToken);
         return connection;
     }
 }
