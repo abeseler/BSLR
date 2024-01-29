@@ -2,4 +2,4 @@
 
 namespace Beseler.Domain.Accounts.Events;
 
-internal sealed record AccountCreatedDomainEvent(string Email) : DomainEvent;
+public sealed record AccountCreatedDomainEvent(string Email) : DomainEvent;

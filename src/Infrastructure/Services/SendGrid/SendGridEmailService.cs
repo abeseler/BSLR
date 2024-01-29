@@ -11,7 +11,7 @@ internal sealed class SendGridEmailService(IOptions<SendGridOptions> options, IS
     {
         if (string.IsNullOrWhiteSpace(options.Value.ApiKey))
         {
-            logger.LogWarning("SendGrid ApiKey is not set");
+            logger.LogWarning("Sending emails is disabled because SendGrid ApiKey is not set");
             return;
         }
 

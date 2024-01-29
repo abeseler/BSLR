@@ -45,7 +45,8 @@ public static class Registrar
 
         builder.Services.AddSendGrid(options =>
         {
-            options.ApiKey = builder.Configuration.GetValue<string>("SendGrid:ApiKey");
+            var key = builder.Configuration.GetValue<string?>("SendGrid:ApiKey");
+            options.ApiKey = string.IsNullOrWhiteSpace(key) ? "TestKey" : key;
         });
 
         return builder;

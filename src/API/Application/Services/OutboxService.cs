@@ -3,7 +3,7 @@ using Beseler.Infrastructure.Data.Repositories;
 
 namespace Beseler.API.Application.Services;
 
-internal sealed class OutboxService(OutboxRepository repository, ILogger<OutboxService> logger) : BackgroundService
+internal sealed class OutboxService(IServiceProvider services, OutboxRepository repository, ILogger<OutboxService> logger) : BackgroundService
 {
     private readonly PeriodicTimer _timer = new(TimeSpan.FromSeconds(10));
 
@@ -29,9 +29,15 @@ internal sealed class OutboxService(OutboxRepository repository, ILogger<OutboxS
 
     private async Task ProcessMessage(OutboxMessage message, CancellationToken stoppingToken)
     {
+        using var scope = services.CreateScope();
+        var consumers = scope.ServiceProvider.GetKeyedServices<IEventConsumer>(message.MessageType);
         try
         {
-            logger.LogInformation("Processing MessageId: {MessageId}", message.OutboxMessageId);
+            foreach (var consumer in consumers)
+            {
+                await consumer.ConsumeAsync(message.Payload, stoppingToken);
+            }
+
             await repository.DeleteAsync(message, stoppingToken);
         }
         catch (Exception ex)

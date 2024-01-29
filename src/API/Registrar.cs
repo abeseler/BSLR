@@ -1,6 +1,10 @@
-﻿using Beseler.API.Application.Services;
+﻿using Beseler.API.Accounts.EventConsumers;
+using Beseler.API.Application;
+using Beseler.API.Application.Services;
 using Beseler.API.Swagger;
 using Beseler.Domain.Accounts;
+using Beseler.Domain.Accounts.Events;
+using Beseler.Domain.Common;
 using Beseler.Infrastructure.Data;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
@@ -30,6 +34,8 @@ public static class Registrar
         builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
         builder.Services.AddTransient<IPasswordHasher<Account>, PasswordHasher<Account>>();
 
+        builder.Services.AddEventConsumer<AccountCreatedDomainEventConsumer, AccountCreatedDomainEvent>();
+
         builder.Services.AddHostedService<OutboxService>();
 
         builder.Services.AddRazorComponents()
@@ -37,4 +43,11 @@ public static class Registrar
 
         return builder;
     }
+
+    private static IServiceCollection AddEventConsumer<TConsumer, TEvent>(this IServiceCollection services) where TConsumer : class, IEventConsumer where TEvent : DomainEvent
+    {
+        services.AddKeyedScoped<IEventConsumer, TConsumer>(typeof(TEvent).Name);
+
+        return services;
+    } 
 }
