@@ -1,5 +1,7 @@
 ﻿using Azure.Identity;
+using Beseler.Domain.Accounts;
 using Beseler.Infrastructure.Data;
+using Beseler.Infrastructure.Data.Repositories;
 using Beseler.Infrastructure.Services;
 using Beseler.Infrastructure.Services.SendGrid;
 using Microsoft.AspNetCore.Builder;
@@ -37,6 +39,8 @@ public static class Registrar
 
         builder.Services
             .AddSingleton<IDatabaseConnector, DatabaseConnector>()
+            .AddScoped<OutboxRepository>()
+            .AddScoped<IAccountRepository, AccountRepository>()
             .AddScoped<IEmailService, SendGridEmailService>();
 
         builder.Services.AddSendGrid(options =>

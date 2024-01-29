@@ -1,5 +1,9 @@
 ﻿using Beseler.API.Swagger;
+using Beseler.Domain.Accounts;
 using Beseler.Infrastructure.Data;
+using FluentValidation;
+using Microsoft.AspNetCore.Identity;
+using System.Reflection;
 
 namespace Beseler.API;
 
@@ -21,6 +25,9 @@ public static class Registrar
         builder.Services.AddSwaggerWithVersioning();
         builder.Services.AddHealthChecks()
             .AddCheck<DatabaseHealthCheck>("Database");
+
+        builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+        builder.Services.AddTransient<IPasswordHasher<Account>, PasswordHasher<Account>>();
 
         builder.Services.AddRazorComponents()
             .AddInteractiveWebAssemblyComponents();

@@ -1,5 +1,6 @@
 using Asp.Versioning;
 using Beseler.API;
+using Beseler.API.Accounts;
 using Beseler.API.Application;
 using Beseler.API.Swagger;
 using Beseler.Domain;
@@ -24,15 +25,16 @@ app.UseInfrastructure();
 app.UseSerilogRequestLogging();
 app.UseAntiforgery();
 
-var versionSet = app.NewApiVersionSet()
+var versions = app.NewApiVersionSet()
     .HasApiVersion(new ApiVersion(1))
     .ReportApiVersions()
     .Build();
 
-app.MapApplicationEndpoints(versionSet);
-app.MapWeatherEndpoints();
+app.MapApplicationEndpoints(versions)
+    .MapAccountEndpoints(versions)
+    .MapWeatherEndpoints(versions)
+    .MapSwaggerUI();
 
-app.MapSwaggerUI();
 app.MapRazorComponents<App>()
     .AddInteractiveWebAssemblyRenderMode()
     .AddAdditionalAssemblies(typeof(Beseler.Web._Imports).Assembly);

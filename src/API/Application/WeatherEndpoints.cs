@@ -1,4 +1,5 @@
-﻿using Beseler.Shared;
+﻿using Asp.Versioning.Builder;
+using Beseler.Shared;
 
 namespace Beseler.API.Application;
 
@@ -18,7 +19,7 @@ internal static class WeatherEndpoints
             "Scorching"
         ];
 
-    public static void MapWeatherEndpoints(this WebApplication app)
+    public static WebApplication MapWeatherEndpoints(this WebApplication app, ApiVersionSet versions)
     {
         app.MapGet("api/WeatherForecast", () =>
         {
@@ -31,5 +32,7 @@ internal static class WeatherEndpoints
 
             return TypedResults.Ok(forcasts);
         });
+
+        return app;
     }
 }

@@ -5,7 +5,7 @@ namespace Beseler.API.Application;
 
 internal static class ApplicationEndpoints
 {
-    public static void MapApplicationEndpoints(this IEndpointRouteBuilder app, ApiVersionSet versionSet)
+    public static WebApplication MapApplicationEndpoints(this WebApplication app, ApiVersionSet versions)
     {
         app.MapHealthChecks("_health", new()
         {
@@ -13,13 +13,15 @@ internal static class ApplicationEndpoints
         });
 
         app.MapGet("_ping", () => TypedResults.Text("pong"))
-            .WithApiVersionSet(versionSet)
+            .WithApiVersionSet(versions)
             .IsApiVersionNeutral()
             .ExcludeFromDescription();
 
         app.MapGet("coffee", () => TypedResults.Text("I'm a teapot!", statusCode: 418))
-            .WithApiVersionSet(versionSet)
+            .WithApiVersionSet(versions)
             .IsApiVersionNeutral()
             .ExcludeFromDescription();
+
+        return app;
     }
 }

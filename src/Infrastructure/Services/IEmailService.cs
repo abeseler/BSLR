@@ -11,5 +11,5 @@ public sealed record EmailMessage
     public required string ToName { get; init; }
     public required string Subject { get; init; }
     public required string Body { get; init; }
-    public required string BodyHtml { get; init;}
+    public required string BodyHtml { get; init; }
 }
