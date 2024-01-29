@@ -14,7 +14,7 @@ internal static class OutboxMessageMapper
             MessageType = domainEvent.GetType().Name,
             Payload = JsonSerializer.Serialize(domainEvent),
             CreatedOn = DateTime.UtcNow,
-            RetriesRemaining = 5
+            RetriesRemaining = 3
         };
     }
 }

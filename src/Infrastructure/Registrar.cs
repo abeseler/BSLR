@@ -39,7 +39,7 @@ public static class Registrar
 
         builder.Services
             .AddSingleton<IDatabaseConnector, DatabaseConnector>()
-            .AddScoped<OutboxRepository>()
+            .AddSingleton<OutboxRepository>()
             .AddScoped<IAccountRepository, AccountRepository>()
             .AddScoped<IEmailService, SendGridEmailService>();
 

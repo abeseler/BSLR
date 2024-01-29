@@ -4,8 +4,33 @@ using System.Data;
 
 namespace Beseler.Infrastructure.Data.Repositories;
 
-internal sealed class OutboxRepository(IDatabaseConnector connector)
+public sealed class OutboxRepository(IDatabaseConnector connector)
 {
+    public async Task<OutboxMessage[]> GetAllAsync(CancellationToken stoppingToken = default)
+    {
+        using var connection = await connector.ConnectAsync(stoppingToken);
+        var messages = await connection.QueryAsync<OutboxMessage>("SELECT * FROM dbo.OutboxMessage WITH (NOLOCK) WHERE RetriesRemaining > 0");
+        return messages.ToArray();
+    }
+
+    public async Task UpdateAsync(OutboxMessage message, CancellationToken stoppingToken = default)
+    {
+        var parameters = new DynamicParameters(message);
+        using var connection = await connector.ConnectAsync(stoppingToken);
+        _ = await connection.ExecuteAsync("""
+            UPDATE dbo.OutboxMessage
+            SET RetriesRemaining = @RetriesRemaining
+            WHERE OutboxMessageId = @OutboxMessageId;
+            """, parameters);
+    }
+
+    public async Task DeleteAsync(OutboxMessage message, CancellationToken stoppingToken = default)
+    {
+        var parameters = new DynamicParameters(message);
+        using var connection = await connector.ConnectAsync(stoppingToken);
+        _ = await connection.ExecuteAsync("DELETE FROM dbo.OutboxMessage WHERE OutboxMessageId = @OutboxMessageId", parameters);
+    }
+
     public async Task InsertAllAsync(IEnumerable<OutboxMessage> messages, CancellationToken stoppingToken = default)
     {
         var dt = new DataTable();
