@@ -1,0 +1,82 @@
+﻿@page "/register"
+@using System.ComponentModel.DataAnnotations
+@inject ILogger<Register> Logger
+
+<PageTitle>BSLR: Register</PageTitle>
+
+<section class="d-flex">
+    <div class="flex-fill">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h3>Register</h3>
+            </div>
+            <div class="card-body">
+                <EditForm Model="Model" OnValidSubmit="@Submit" FormName="AccountRegistration">
+                    <DataAnnotationsValidator />
+        
+                    <div class="mb-3">
+                        <label for="Input_Email" class="form-label fw-bold">Email</label>
+                        <InputText id="Input_Email" class="form-control" @bind-Value="Model.Email" />
+                        <ValidationMessage For="@(() => Model.Email)" />
+                    </div>
+        
+                    <div class="mb-3">
+                        <label for="Input_FirstName" class="form-label fw-bold">First Name</label>
+                        <InputText id="Input_FirstName" class="form-control" @bind-Value="Model.FirstName" />
+                        <ValidationMessage For="@(() => Model.FirstName)" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="Input_LastName" class="form-label fw-bold">Last Name</label>
+                        <InputText id="Input_LastName" class="form-control" @bind-Value="Model.LastName" />
+                        <ValidationMessage For="@(() => Model.LastName)" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="Input_Password" class="form-label fw-bold">Password</label>
+                        <InputText id="Input_Password" class="form-control" type="password" @bind-Value="Model.Password" />
+                        <ValidationMessage For="@(() => Model.Password)" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="Input_ConfirmPassword" class="form-label fw-bold">Confirm Password</label>
+                        <InputText id="Input_ConfirmPassword" class="form-control" type="password" @bind-Value="Model.ConfirmPassword" />
+                        <ValidationMessage For="@(() => Model.ConfirmPassword)" />
+                    </div>
+
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary">Register</button>
+                    </div>                    
+                </EditForm>
+            </div>
+        </div>
+    </div>
+    <div class="flex-fill p-3">
+        <p>Complete the form to register for BSLR.</p>
+    </div>
+</section>
+
+@code {
+    [SupplyParameterFromForm]
+    private RegisterModel Model { get; set; } = new();
+    private EditContext? Context;
+
+    private class RegisterModel
+    {
+        [Required, EmailAddress]
+        public string? Email { get; set; }
+        [Required, MinLength(2), MaxLength(50)]
+        public string? FirstName { get; set; }
+        [Required, MinLength(2), MaxLength(50)]
+        public string? LastName { get; set; }
+        [Required, MinLength(8), MaxLength(50)]
+        public string? Password { get; set; }
+        [Required, Compare(nameof(Password))]
+        public string? ConfirmPassword { get; set; }
+    }
+
+    private void Submit()
+    {
+        Logger.LogInformation("Submit called: Processing the form");
+    }
+}

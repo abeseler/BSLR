@@ -19,7 +19,7 @@ internal static class LoginAccountHandler
     CancellationToken stoppingToken)
     {
         var account = await repository.GetByEmailAsync(request.Email, stoppingToken);
-        if (account is null)
+        if (account is null || account.IsLocked)
             return TypedResults.Unauthorized();
 
         var verificationResult = passwordHasher.VerifyHashedPassword(account, account.SecretHash ?? "", request.Secret);
