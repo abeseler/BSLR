@@ -20,6 +20,7 @@ public sealed class TokenService
         var key = Encoding.UTF8.GetBytes(options.Value.Key!);
         _options = options.Value;
         _handler = new();
+        _handler.InboundClaimTypeMap.Clear();
         _symmetricSecurityKey = new(key);
         _signingCredentials = new(_symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
         _validationParameters = new()
@@ -31,6 +32,7 @@ public sealed class TokenService
             ValidateIssuer = true,
             ValidateAudience = true,
             ValidateLifetime = true,
+            NameClaimType = JwtRegisteredClaimNames.Sub,
             ClockSkew = TimeSpan.FromSeconds(30)
         };
     }
@@ -75,7 +77,7 @@ public sealed class TokenService
         [
             new(JwtRegisteredClaimNames.Jti, tokenId.ToString()),
             new(JwtRegisteredClaimNames.Sub, account.AccountId.ToString()),
-            new("email_verified", account.IsVerified.ToString())
+            new(CustomClaimTypes.EmailVerified, account.IsVerified.ToString())
         ];
     }
 }

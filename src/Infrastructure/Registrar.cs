@@ -12,6 +12,7 @@ using Microsoft.Extensions.Configuration.AzureAppConfiguration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using SendGrid.Extensions.DependencyInjection;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace Beseler.Infrastructure;
 
@@ -43,6 +44,11 @@ public static class Registrar
             options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
         }).AddJwtBearer(options =>
         {
+            var handler = new JwtSecurityTokenHandler();
+            handler.InboundClaimTypeMap.Clear();
+            options.TokenHandlers.Clear();
+            options.TokenHandlers.Add(handler);
+
             var key = builder.Configuration.GetValue<string>("Jwt:Key") ?? "";
             options.TokenValidationParameters = new()
             {
@@ -53,6 +59,7 @@ public static class Registrar
                 ValidateAudience = true,
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
+                NameClaimType = JwtRegisteredClaimNames.Sub,
                 ClockSkew = TimeSpan.FromSeconds(30)
             };
         });
