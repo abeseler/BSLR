@@ -34,7 +34,7 @@ public static class Registrar
         builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
         builder.Services.AddTransient<IPasswordHasher<Account>, PasswordHasher<Account>>();
 
-        builder.Services.AddEventConsumer<AccountCreatedDomainEventConsumer, AccountCreatedDomainEvent>();
+        builder.Services.AddEventConsumer<SendVerificationEmailWhenAccountCreatedConsumer, AccountCreatedDomainEvent>();
 
         builder.Services.AddHostedService<OutboxService>();
 
@@ -49,5 +49,5 @@ public static class Registrar
         services.AddKeyedScoped<IEventConsumer, TConsumer>(typeof(TEvent).Name);
 
         return services;
-    } 
+    }
 }

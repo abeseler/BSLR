@@ -1,5 +1,6 @@
 ﻿using Asp.Versioning.Builder;
 using Beseler.Shared;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Beseler.API.Application;
 
@@ -21,7 +22,7 @@ internal static class WeatherEndpoints
 
     public static WebApplication MapWeatherEndpoints(this WebApplication app, ApiVersionSet versions)
     {
-        app.MapGet("api/WeatherForecast", () =>
+        app.MapGet("api/WeatherForecast", [AllowAnonymous] () =>
         {
             var forcasts = Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
@@ -31,7 +32,7 @@ internal static class WeatherEndpoints
             });
 
             return TypedResults.Ok(forcasts);
-        });
+        }).RequireAuthorization();
 
         return app;
     }

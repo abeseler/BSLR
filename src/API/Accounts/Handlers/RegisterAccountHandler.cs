@@ -1,13 +1,15 @@
-﻿using Beseler.API.Accounts.Requests;
-using Beseler.Domain.Accounts;
+﻿using Beseler.Domain.Accounts;
+using Beseler.Shared.Accounts.Requests;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using System.Transactions;
 
 namespace Beseler.API.Accounts.Handlers;
 
-public static class RegisterAccountHandler
+internal static class RegisterAccountHandler
 {
+    [AllowAnonymous]
     public static async Task<IResult> HandleAsync(
         RegisterAccountRequest request,
         IValidator<RegisterAccountRequest> validator,
@@ -17,7 +19,7 @@ public static class RegisterAccountHandler
     {
         if (await validator.ValidateAsync(request, stoppingToken) is { IsValid: false } validationResult)
         {
-            return TypedResults.BadRequest(validationResult.ToDictionary());
+            return TypedResults.ValidationProblem(validationResult.ToDictionary());
         }
 
         var passwordHash = passwordHasher.HashPassword(default!, request.Password);

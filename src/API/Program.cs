@@ -25,6 +25,9 @@ app.UseInfrastructure();
 app.UseSerilogRequestLogging();
 app.UseAntiforgery();
 
+app.UseAuthentication();
+app.UseAuthorization();
+
 var versions = app.NewApiVersionSet()
     .HasApiVersion(new ApiVersion(1))
     .ReportApiVersions()

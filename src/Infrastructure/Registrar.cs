@@ -3,11 +3,14 @@ using Beseler.Domain.Accounts;
 using Beseler.Infrastructure.Data;
 using Beseler.Infrastructure.Data.Repositories;
 using Beseler.Infrastructure.Services;
+using Beseler.Infrastructure.Services.Jwt;
 using Beseler.Infrastructure.Services.SendGrid;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.AzureAppConfiguration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using SendGrid.Extensions.DependencyInjection;
 
 namespace Beseler.Infrastructure;
@@ -33,14 +36,38 @@ public static class Registrar
             builder.Services.AddAzureAppConfiguration();
         }
 
+        builder.Services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+        }).AddJwtBearer(options =>
+        {
+            var key = builder.Configuration.GetValue<string>("Jwt:Key") ?? "";
+            options.TokenValidationParameters = new()
+            {
+                ValidIssuer = builder.Configuration.GetValue<string>("Jwt:Issuer"),
+                ValidAudience = builder.Configuration.GetValue<string>("Jwt:Issuer"),
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ClockSkew = TimeSpan.FromSeconds(30)
+            };
+        });
+        builder.Services.AddAuthorization();
+
         builder.Services
             .BindConfiguration<ConnectionStringOptions>()
+            .BindConfiguration<JwtOptions>()
             .BindConfiguration<SendGridOptions>();
 
         builder.Services
             .AddSingleton<IDatabaseConnector, DatabaseConnector>()
             .AddSingleton<OutboxRepository>()
             .AddScoped<IAccountRepository, AccountRepository>()
+            .AddSingleton<TokenService>()
             .AddScoped<IEmailService, SendGridEmailService>();
 
         builder.Services.AddSendGrid(options =>

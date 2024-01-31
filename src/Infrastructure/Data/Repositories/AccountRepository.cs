@@ -7,6 +7,20 @@ namespace Beseler.Infrastructure.Data.Repositories;
 
 internal sealed class AccountRepository(IDatabaseConnector connector, OutboxRepository outboxRepository) : AggregateRepository(outboxRepository), IAccountRepository
 {
+    public async Task<Account?> GetByIdAsync(int id, CancellationToken stoppingToken = default)
+    {
+        var parameters = new DynamicParameters();
+        parameters.Add("id", id);
+
+        using var connection = await connector.ConnectAsync(stoppingToken);
+        return await connection.QuerySingleOrDefaultAsync<Account>(
+            """
+            SELECT *
+            FROM Account
+            WHERE AccountId = @id;
+            """, parameters);
+    }
+
     public async Task<Account?> GetByEmailAsync(string email, CancellationToken stoppingToken = default)
     {
         var parameters = new DynamicParameters();

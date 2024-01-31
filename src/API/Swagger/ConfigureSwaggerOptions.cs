@@ -6,33 +6,31 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Beseler.API.Swagger;
 
-internal sealed class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
+internal sealed class ConfigureSwaggerOptions(IApiVersionDescriptionProvider provider, IWebHostEnvironment environment) : IConfigureOptions<SwaggerGenOptions>
 {
-    private readonly IApiVersionDescriptionProvider _provider;
-    private readonly IWebHostEnvironment _environment;
-
-    public ConfigureSwaggerOptions(IApiVersionDescriptionProvider provider, IWebHostEnvironment environment)
-    {
-        _provider = provider;
-        _environment = environment;
-    }
-
     public void Configure(SwaggerGenOptions options)
     {
-        foreach (var description in _provider.ApiVersionDescriptions)
+        foreach (var description in provider.ApiVersionDescriptions)
         {
-            options.SwaggerDoc(description.GroupName, CreateInfoForApiVersion(description, _environment.EnvironmentName));
+            options.SwaggerDoc(description.GroupName, CreateInfoForApiVersion(description, environment));
+            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            {
+                In = ParameterLocation.Header,
+                Description = "Please enter token",
+                Name = "Authorization",
+                Type = SecuritySchemeType.Http,
+                BearerFormat = "JWT",
+                Scheme = "bearer"
+            });
         }
     }
 
-    private static OpenApiInfo CreateInfoForApiVersion(ApiVersionDescription description, string environmentName)
+    private static OpenApiInfo CreateInfoForApiVersion(ApiVersionDescription description, IWebHostEnvironment hostEnvironment)
     {
-        var text = new StringBuilder("**Environment:** `");
-        text.Append(environmentName);
-        text.Append("`\nAn example application with OpenAPI, Swashbuckle, and API versioning.");
+        var text = new StringBuilder($"**Environment:** `{hostEnvironment.EnvironmentName}`");
         var info = new OpenApiInfo()
         {
-            Title = "Example Service",
+            Title = "BSLR",
             Version = description.ApiVersion.ToString(),
         };
 
