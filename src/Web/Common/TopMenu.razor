@@ -1,0 +1,47 @@
+﻿@inject ILocalStorageService _localStorage
+@inject AuthenticationStateProvider _authStateProvider
+@inject NavigationManager _navigationManager
+
+<nav class="navbar navbar-expand-lg sticky-top bg-light" data-bs-theme="light">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">BSLR</a>
+        <button class="navbar-toggler" type="button" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="@navMenuCssClass navbar-collapse" @onclick="ToggleNavMenu">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="" Match="NavLinkMatch.All">Home</NavLink>
+                </li>
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="login">Login</NavLink>
+                </li>
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="register">Register</NavLink>
+                </li>
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="fetchdata">Weather</NavLink>
+                </li>
+            </ul>
+        </div>
+
+        <button class="btn btn-outline-primary" @onclick="GoToLogin">Login</button>
+        <button class="btn btn-outline-primary" @onclick="Logout">Logout</button>
+    </div>
+</nav>
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationState { get; set; }
+    private bool collapseNavMenu = true;
+    private string? navMenuCssClass => collapseNavMenu ? "collapse" : null;
+    private void ToggleNavMenu() => collapseNavMenu = !collapseNavMenu;
+
+    private void GoToLogin() => _navigationManager.NavigateTo("login", false);
+
+    private async Task Logout()
+    {
+        await _localStorage.RemoveItemAsync(StorageKeys.AccessToken);
+        await _authStateProvider.GetAuthenticationStateAsync();
+    }
+}

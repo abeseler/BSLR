@@ -1,7 +1,7 @@
 ﻿@page "/login"
-@using System.ComponentModel.DataAnnotations
-@using Beseler.Shared.Accounts.Requests
-@inject ILogger<Register> Logger
+@inject HttpClient _http
+@inject AuthenticationStateProvider _authStateProvider
+@inject ILocalStorageService _localStorage
 
 <PageTitle>BSLR: Login</PageTitle>
 
@@ -12,26 +12,26 @@
                 <div class="card" style="border-radius: 15px;">
                     <div class="card-body p-5">
 
-                        <EditForm EditContext="Context" Model="Model" OnValidSubmit="@Submit" FormName="AccountRegistration">
+                        <EditForm EditContext="_context" OnValidSubmit="Submit" FormName="AccountRegistration">
                             <DataAnnotationsValidator />
 
                             <h2 class="text-uppercase text-center mb-5">Account Login</h2>
                             
                             <div class="form-outline mb-4">
                                 <label class="form-label" for="Input_Email">Email</label>
-                                <InputText type="email" id="Input_Email" class="form-control form-control-lg" @bind-Value="Model.Email" />
-                                <ValidationMessage For="@(() => Model.Email)" />
+                                <InputText tabindex="1" type="email" id="Input_Email" class="form-control form-control-lg" @ref="_emailInput" @bind-Value="_model.Email" />
+                                <ValidationMessage For="@(() => _model.Email)" />
                             </div>
 
                             <div class="form-outline mb-4">
                                 <label class="form-label" for="Input_Password">Password</label>
-                                <InputText type="password" id="Input_Password" class="form-control form-control-lg" @bind-Value="Model.Password" />
-                                <ValidationMessage For="@(() => Model.Password)" />
+                                <InputText tabindex="2" type="password" id="Input_Password" class="form-control form-control-lg" @bind-Value="_model.Password" />
+                                <ValidationMessage For="@(() => _model.Password)" />
                             </div>
 
                             <div class="d-flex justify-content-center">
-                                <button type="reset" class="btn btn-outline-primary btn-block btn-lg me-2" @onclick="Reset">Reset</button>
-                                <button type="submit" class="btn btn-primary btn-block btn-lg text-body ms-2">Login</button>
+                                <button tabindex="4" type="reset" class="btn btn-outline-primary btn-block btn-lg me-2" @onclick="Reset">Reset</button>
+                                <button tabindex="3" type="submit" class="btn btn-primary btn-block btn-lg text-body ms-2">Login</button>
                             </div>
 
                             <p class="text-center text-muted mt-5 mb-0">Don't have an account? <a href="register" class="link fw-bold"><u>Create new account</u></a></p>
@@ -45,10 +45,11 @@
 
 @code {
     [SupplyParameterFromForm]
-    private LoginModel Model { get; set; } = new();
-    private EditContext? Context;
+    private FormModel _model { get; set; } = new();
+    private EditContext? _context;
+    private InputText _emailInput = default!;
 
-    private class LoginModel
+    private class FormModel
     {
         [Required(ErrorMessage = "Email is required!")]
         public string? Email { get; set; }
@@ -57,16 +58,40 @@
         public string? Password { get; set; }
     }
 
-    private void Reset()
+    protected override void OnInitialized() => _context = new(_model);
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        Model = new LoginModel();
-        Context?.NotifyValidationStateChanged();
+        if (firstRender && _emailInput?.Element is not null)
+            await _emailInput.Element.Value.FocusAsync();
     }
 
-    private void Submit()
+    private void Reset()
     {
-        var request = new LoginAccountRequest(Model.Email!, Model.Password!);
+        _model = new FormModel();
+        _context = new(_model);
+    }
 
-        Logger.LogInformation("Submit called: Processing the form\n{@Request}", request);
+    private async Task Submit()
+    {
+        var request = new LoginAccountRequest(_model.Email!, _model.Password!);
+        _model.Password = null;
+
+        var response = await _http.PostAsJsonAsync("api/accounts/login", request);
+        if (response.IsSuccessStatusCode is not true)
+        {
+            Log.Error("Login failed: {@Response}", response);
+            return;
+        }
+
+        var tokenData = await response.Content.ReadFromJsonAsync<AccessTokenResponse>();
+        if (tokenData?.AccessToken is null)
+        {
+            Log.Error("Login failed: {@Response}", response);
+            return;
+        }
+
+        await _localStorage.SetItemAsStringAsync(StorageKeys.AccessToken, tokenData?.AccessToken);
+        await _authStateProvider.GetAuthenticationStateAsync();
     }
 }
