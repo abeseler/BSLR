@@ -21,7 +21,6 @@ app.UseStaticFiles();
 app.UseExceptionHandler(app =>
     app.Run(async context => await TypedResults.Problem().ExecuteAsync(context)));
 
-app.UseInfrastructure();
 app.UseSerilogRequestLogging();
 app.UseAntiforgery();
 
