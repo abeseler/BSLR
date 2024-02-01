@@ -6,10 +6,20 @@ namespace Beseler.Infrastructure.Data.Repositories;
 
 public sealed class OutboxRepository(IDatabaseConnector connector)
 {
+    public static readonly Guid ServiceId = Guid.NewGuid();
+
     public async Task<OutboxMessage[]> GetAllAsync(CancellationToken stoppingToken = default)
     {
+        var parameters = new DynamicParameters();
+        parameters.Add("ServiceId", ServiceId);
+
         using var connection = await connector.ConnectAsync(stoppingToken);
-        var messages = await connection.QueryAsync<OutboxMessage>("SELECT * FROM dbo.OutboxMessage WITH (NOLOCK) WHERE RetriesRemaining > 0");
+        var messages = await connection.QueryAsync<OutboxMessage>("""
+            SELECT *
+            FROM dbo.OutboxMessage WITH (NOLOCK)
+            WHERE RetriesRemaining > 0
+                AND ServiceId = @ServiceId;
+            """, parameters);
         return messages.ToArray();
     }
 
@@ -34,7 +44,7 @@ public sealed class OutboxRepository(IDatabaseConnector connector)
     public async Task InsertAllAsync(IEnumerable<OutboxMessage> messages, CancellationToken stoppingToken = default)
     {
         var dt = new DataTable();
-        dt.Columns.Add("OutboxMessageId");
+        dt.Columns.Add("ServiceId");
         dt.Columns.Add("MessageType");
         dt.Columns.Add("Payload");
         dt.Columns.Add("CreatedOn");
@@ -42,7 +52,7 @@ public sealed class OutboxRepository(IDatabaseConnector connector)
 
         foreach (var message in messages)
         {
-            dt.Rows.Add(message.OutboxMessageId, message.MessageType, message.Payload, message.CreatedOn, message.RetriesRemaining);
+            dt.Rows.Add(ServiceId, message.MessageType, message.Payload, message.CreatedOn, message.RetriesRemaining);
         }
 
         var parameters = new DynamicParameters();
@@ -51,19 +61,18 @@ public sealed class OutboxRepository(IDatabaseConnector connector)
         using var connection = await connector.ConnectAsync(stoppingToken);
         _ = await connection.ExecuteAsync("""
             INSERT INTO dbo.OutboxMessage (
-                OutboxMessageId,
+                ServiceId,
                 MessageType,
                 Payload,
                 CreatedOn,
                 RetriesRemaining)
             SELECT
-                m.OutboxMessageId,
+                m.ServiceId,
                 m.MessageType,
                 m.Payload,
                 m.CreatedOn,
                 m.RetriesRemaining
-            FROM @Messages m
-            WHERE NOT EXISTS (SELECT 1 FROM dbo.OutboxMessage om WHERE om.OutboxMessageId = m.OutboxMessageId);
+            FROM @Messages m;
             """, parameters);
     }
 }

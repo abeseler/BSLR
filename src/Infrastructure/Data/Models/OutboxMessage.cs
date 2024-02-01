@@ -2,7 +2,8 @@
 
 public sealed record OutboxMessage
 {
-    public Guid OutboxMessageId { get; init; }
+    public int OutboxMessageId { get; init; }
+    public Guid ServiceId { get; init; }
     public required string MessageType { get; init; }
     public required string Payload { get; init; }
     public DateTime CreatedOn { get; init; }
