@@ -1,4 +1,8 @@
 ﻿@page "/register"
+@inject HttpClient _http
+@inject AuthenticationStateProvider _authStateProvider
+@inject ILocalStorageService _localStorage
+@inject NavigationManager _navigation
 
 <PageTitle>BSLR: Register</PageTitle>
 
@@ -47,8 +51,17 @@
                             </div>
 
                             <div class="d-flex justify-content-center">
-                                <button tabindex="7" type="reset" class="btn btn-outline-primary btn-block btn-lg me-2" @onclick="Reset">Reset</button>
-                                <button tabindex="6" type="submit" class="btn btn-primary btn-block btn-lg text-body ms-2">Register</button>
+                                @if (_isProcessing)
+                                {
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <button tabindex="7" type="reset" class="btn btn-outline-primary btn-block btn-lg me-2" @onclick="Reset">Reset</button>
+                                    <button tabindex="6" type="submit" class="btn btn-primary btn-block btn-lg text-body ms-2">Register</button>
+                                }
                             </div>
 
                             <p class="text-center text-muted mt-5 mb-0">Have already an account? <a href="login" class="link fw-bold text-decoration-underline">Login here</a></p>
@@ -65,6 +78,8 @@
     private FormModel _model { get; set; } = new();
     private EditContext? _context;
     private InputText _emailInput = default!;
+
+    private bool _isProcessing = false;
 
     private class FormModel
     {
@@ -102,12 +117,44 @@
         _context = new(_model);
     }
 
-    private void Submit()
+    private async Task Submit()
     {
-        var request = new RegisterAccountRequest(_model.Email!, _model.FirstName!, _model.LastName!, _model.Password!);
-        _model.Password = null;
-        _model.ConfirmPassword = null;
+        _isProcessing = true;
+        try
+        {            
+            var request = new RegisterAccountRequest(_model.Email!, _model.FirstName!, _model.LastName!, _model.Password!);        
+            var loginRequest = new LoginAccountRequest(_model.Email!, request.Password);
+            _model.Password = null;
+            _model.ConfirmPassword = null;
 
-        Log.Information("Submit called: Processing the form\n{@Request}", request);
+            var response = await _http.PostAsJsonAsync("api/accounts/register", request);
+            if (response.IsSuccessStatusCode is false)
+            {
+                Log.Error("Registration failed: {@Response}", response);
+                return;
+            }
+
+            var loginResponse = await _http.PostAsJsonAsync("api/accounts/login", loginRequest);
+            if (loginResponse.IsSuccessStatusCode is false)
+            {
+                Log.Error("Login failed: {@Response}", loginResponse);
+                return;
+            }
+
+            var tokenData = await loginResponse.Content.ReadFromJsonAsync<AccessTokenResponse>();
+            if (tokenData?.AccessToken is null)
+            {
+                Log.Error("Login failed: {@Response}", loginResponse);
+                return;
+            }
+
+            await _localStorage.SetItemAsStringAsync(StorageKeys.AccessToken, tokenData?.AccessToken);
+            await _authStateProvider.GetAuthenticationStateAsync();
+            _navigation.NavigateTo("/");
+        }
+        finally
+        {
+            _isProcessing = false;
+        }
     }
 }

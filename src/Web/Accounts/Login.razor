@@ -2,6 +2,7 @@
 @inject HttpClient _http
 @inject AuthenticationStateProvider _authStateProvider
 @inject ILocalStorageService _localStorage
+@inject NavigationManager _navigation
 
 <PageTitle>BSLR: Login</PageTitle>
 
@@ -49,6 +50,8 @@
     private EditContext? _context;
     private InputText _emailInput = default!;
 
+    private bool _isProcessing = false;
+
     private class FormModel
     {
         [Required(ErrorMessage = "Email is required!")]
@@ -74,24 +77,34 @@
 
     private async Task Submit()
     {
-        var request = new LoginAccountRequest(_model.Email!, _model.Password!);
-        _model.Password = null;
+        _isProcessing = true;
 
-        var response = await _http.PostAsJsonAsync("api/accounts/login", request);
-        if (response.IsSuccessStatusCode is not true)
+        try
         {
-            Log.Error("Login failed: {@Response}", response);
-            return;
-        }
+            var request = new LoginAccountRequest(_model.Email!, _model.Password!);
+            _model.Password = null;
 
-        var tokenData = await response.Content.ReadFromJsonAsync<AccessTokenResponse>();
-        if (tokenData?.AccessToken is null)
+            var response = await _http.PostAsJsonAsync("api/accounts/login", request);
+            if (response.IsSuccessStatusCode is not true)
+            {
+                Log.Error("Login failed: {@Response}", response.Content);
+                return;
+            }
+
+            var tokenData = await response.Content.ReadFromJsonAsync<AccessTokenResponse>();
+            if (tokenData?.AccessToken is null)
+            {
+                Log.Error("Login failed: {@Response}", response.Content);
+                return;
+            }
+
+            await _localStorage.SetItemAsStringAsync(StorageKeys.AccessToken, tokenData?.AccessToken);
+            await _authStateProvider.GetAuthenticationStateAsync();
+            _navigation.NavigateTo("/");
+        }
+        finally
         {
-            Log.Error("Login failed: {@Response}", response);
-            return;
-        }
-
-        await _localStorage.SetItemAsStringAsync(StorageKeys.AccessToken, tokenData?.AccessToken);
-        await _authStateProvider.GetAuthenticationStateAsync();
+            _isProcessing = false;
+        }        
     }
 }

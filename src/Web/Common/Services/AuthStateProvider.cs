@@ -1,7 +1,7 @@
 ﻿using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace Beseler.Web.Common.Services;
 
@@ -9,13 +9,6 @@ public sealed class AuthStateProvider(ILocalStorageService localStorage, HttpCli
 {
     private static readonly AuthenticationState _anonymous = new(new());
     private static readonly JwtSecurityTokenHandler _handler = new();
-    private static readonly TokenValidationParameters _validationParameters = new()
-    {
-        ValidateIssuer = false,
-        ValidateAudience = false,
-        ValidateLifetime = false,
-        ValidateIssuerSigningKey = true
-    };
 
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
@@ -29,7 +22,9 @@ public sealed class AuthStateProvider(ILocalStorageService localStorage, HttpCli
 
         try
         {
-            var principal = _handler.ValidateToken(token, _validationParameters, out _);
+            var jwt = _handler.ReadJwtToken(token);
+            var identity = new ClaimsIdentity(jwt.Claims);
+            var principal = new ClaimsPrincipal(identity);
             var state = new AuthenticationState(principal);
             http.DefaultRequestHeaders.Authorization = new("Bearer", token);
             NotifyAuthenticationStateChanged(Task.FromResult(state));

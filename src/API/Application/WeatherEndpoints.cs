@@ -24,14 +24,14 @@ internal static class WeatherEndpoints
     {
         app.MapGet("api/WeatherForecast", [AllowAnonymous] () =>
         {
-            var forcasts = Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            var forecasts = Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
                 Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
                 TemperatureC = Random.Shared.Next(-20, 55),
                 Summary = _summaries[Random.Shared.Next(_summaries.Length)]
             });
 
-            return TypedResults.Ok(forcasts);
+            return TypedResults.Ok(forecasts);
         }).RequireAuthorization();
 
         return app;

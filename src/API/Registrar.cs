@@ -8,6 +8,7 @@ using Beseler.Domain.Common;
 using Beseler.Infrastructure.Data;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
+using Serilog.Core;
 using System.Reflection;
 
 namespace Beseler.API;
@@ -26,6 +27,10 @@ public static class Registrar
             .Filter.ByExcluding("RequestPath like '/_swagger%'")
             .Filter.ByExcluding("RequestPath like '/_framework%'")
             .Enrich.FromLogContext());
+
+
+        builder.Services.AddSingleton<ILogEventEnricher, HttpContextLogEnricher>();
+        builder.Services.AddHttpContextAccessor();
 
         builder.Services.AddSwaggerWithVersioning();
         builder.Services.AddHealthChecks()

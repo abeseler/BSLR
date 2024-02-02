@@ -11,13 +11,13 @@
         <div class="@navMenuCssClass navbar-collapse" @onclick="ToggleNavMenu">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
-                    <NavLink class="nav-link" href="" Match="NavLinkMatch.All">Home</NavLink>
+                    <NavLink class="nav-link" href="@Routes.Home" Match="NavLinkMatch.All">Home</NavLink>
                 </li>
                 <li class="nav-item">
-                    <NavLink class="nav-link" href="login">Login</NavLink>
+                    <NavLink class="nav-link" href="@Routes.Login">Login</NavLink>
                 </li>
                 <li class="nav-item">
-                    <NavLink class="nav-link" href="register">Register</NavLink>
+                    <NavLink class="nav-link" href="@Routes.Register">Register</NavLink>
                 </li>
                 <li class="nav-item">
                     <NavLink class="nav-link" href="fetchdata">Weather</NavLink>
@@ -37,11 +37,12 @@
     private string? navMenuCssClass => collapseNavMenu ? "collapse" : null;
     private void ToggleNavMenu() => collapseNavMenu = !collapseNavMenu;
 
-    private void GoToLogin() => _navigationManager.NavigateTo("login", false);
+    private void GoToLogin() => _navigationManager.NavigateTo(Routes.Login, false);
 
     private async Task Logout()
     {
         await _localStorage.RemoveItemAsync(StorageKeys.AccessToken);
         await _authStateProvider.GetAuthenticationStateAsync();
+        _navigationManager.NavigateTo(Routes.Login);
     }
 }
