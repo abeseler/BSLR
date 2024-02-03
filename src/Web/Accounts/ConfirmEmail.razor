@@ -1,8 +1,6 @@
 ﻿@attribute [Route(Routes.ConfirmEmail)]
-@using Beseler.Shared.Accounts.Requests
 @inject NavigationManager _navigation
-@inject ILocalStorageService _localStorage
-@inject AuthenticationStateProvider _authStateProvider
+@inject AuthStateProvider _authStateProvider
 @inject HttpClient _http
 
 @if (ConfirmationToken is null)

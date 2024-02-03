@@ -1,52 +1,55 @@
-﻿using Beseler.Web.Common;
-using Blazored.LocalStorage;
-using Microsoft.AspNetCore.Components.Authorization;
+﻿using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.IdentityModel.JsonWebTokens;
 using System.Security.Claims;
 
 namespace Beseler.Web.Accounts.Services;
 
-internal sealed class AuthStateProvider(ILocalStorageService localStorage, HttpClient http) : AuthenticationStateProvider
+internal sealed class AuthStateProvider() : AuthenticationStateProvider
 {
     private static readonly JsonWebTokenHandler _handler = new();
     private AuthenticationState _state = new(new());
+    private DateTimeOffset? _expiresOn;
 
-    public override async Task<AuthenticationState> GetAuthenticationStateAsync()
+    public string? Token { get; private set; }
+    public bool IsExpired => _expiresOn is not null && _expiresOn.Value < DateTimeOffset.UtcNow;
+
+    public override Task<AuthenticationState> GetAuthenticationStateAsync() => Task.FromResult(_state);
+
+    public void NotifyUserAuthentication(string? token = null, DateTimeOffset? expiresOn = null)
     {
         try
         {
-            var token = await localStorage.GetItemAsStringAsync(StorageKeys.AccessToken);
-            if (string.IsNullOrWhiteSpace(token))
+            if (token is null)
             {
-                http.DefaultRequestHeaders.Authorization = null;
+                Log.Information("Authentication state has been reset");
+
+                Token = null;
+                _expiresOn = null;
                 _state = new(new());
-                return _state;
+                return;
             }
 
             var jwt = _handler.ReadJsonWebToken(token);
             if (jwt is null)
             {
-                Log.Warning("Token was not a valid json web token");
-                http.DefaultRequestHeaders.Authorization = null;
-                await localStorage.RemoveItemAsync(StorageKeys.AccessToken);
-                return _state;
+                Log.Warning("Token was not a valid json web token: {Token}", token);
+
+                Token = null;
+                _expiresOn = null;
+                _state = new(new());
+                return;
             }
 
-            http.DefaultRequestHeaders.Authorization = new("Bearer", token);
             var identity = new ClaimsIdentity(jwt.Claims, "JWT", JwtRegisteredClaimNames.Sub, null);
             var principal = new ClaimsPrincipal(identity);
+
+            Token = token;
+            _expiresOn = expiresOn;
             _state = new AuthenticationState(principal);
-            return _state;
-        }
-        catch (Exception ex)
-        {
-            Log.Error(ex, "Caught exception while getting authentication state");
-            await localStorage.RemoveItemAsync(StorageKeys.AccessToken);
-            return _state;
         }
         finally
         {
             NotifyAuthenticationStateChanged(Task.FromResult(_state));
-        }
+        }        
     }
 }

@@ -1,7 +1,6 @@
 ﻿@attribute [Route(Routes.Login)]
 @inject HttpClient _http
-@inject AuthenticationStateProvider _authStateProvider
-@inject ILocalStorageService _localStorage
+@inject AuthStateProvider _authStateProvider
 @inject NavigationManager _navigation
 
 <PageTitle>BSLR: Login</PageTitle>
@@ -46,7 +45,7 @@
                                 </div>
                             }                            
 
-                            <p class="text-center text-muted mt-5 mb-0">Don't have an account? <a href="register" class="link fw-bold"><u>Create new account</u></a></p>
+                            <p class="text-center text-muted mt-5 mb-0">Don't have an account? <a href="@Routes.Register" class="link fw-bold"><u>Create new account</u></a></p>
                         </EditForm>
                     </div>
                 </div>
@@ -109,13 +108,12 @@
                 return;
             }
 
-            await _localStorage.SetItemAsStringAsync(StorageKeys.AccessToken, tokenData?.AccessToken);
-            await _authStateProvider.GetAuthenticationStateAsync();
+            _authStateProvider.NotifyUserAuthentication(tokenData.AccessToken, tokenData.ExpiresOn);
             _navigation.NavigateTo("/");
         }
         finally
         {
             _isProcessing = false;
-        }        
+        }
     }
 }

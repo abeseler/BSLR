@@ -1,5 +1,5 @@
 ﻿@inject ILocalStorageService _localStorage
-@inject AuthenticationStateProvider _authStateProvider
+@inject AuthStateProvider _authStateProvider
 @inject NavigationManager _navigationManager
 
 <nav class="navbar navbar-expand-lg sticky-top bg-light" data-bs-theme="light">
@@ -39,10 +39,9 @@
 
     private void GoToLogin() => _navigationManager.NavigateTo(Routes.Login, false);
 
-    private async Task Logout()
+    private void Logout()
     {
-        await _localStorage.RemoveItemAsync(StorageKeys.AccessToken);
-        await _authStateProvider.GetAuthenticationStateAsync();
+        _authStateProvider.NotifyUserAuthentication();
         _navigationManager.NavigateTo(Routes.Login);
     }
 }
