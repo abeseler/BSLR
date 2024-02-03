@@ -1,4 +1,9 @@
-﻿@page "/confirm-email"
+﻿@attribute [Route(Routes.ConfirmEmail)]
+@using Beseler.Shared.Accounts.Requests
+@inject NavigationManager _navigation
+@inject ILocalStorageService _localStorage
+@inject AuthenticationStateProvider _authStateProvider
+@inject HttpClient _http
 
 @if (ConfirmationToken is null)
 {
@@ -18,6 +23,15 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        await Task.CompletedTask;
+        if (ConfirmationToken is null)
+            return;
+
+        var request = new HttpRequestMessage(HttpMethod.Post, Endpoints.Accounts.ConfirmEmail);
+        var response = await _http.PostAsJsonAsync(Endpoints.Accounts.ConfirmEmail, new ConfirmEmailRequest(ConfirmationToken));
+
+        if (response.IsSuccessStatusCode is false)
+            return;
+
+        _navigation.NavigateTo(Routes.Login);
     }
 }

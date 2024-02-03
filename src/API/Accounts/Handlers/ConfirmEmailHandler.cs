@@ -1,22 +1,24 @@
 ﻿using Beseler.Domain.Accounts;
 using Beseler.Infrastructure.Services.Jwt;
 using Beseler.Shared.Accounts;
+using Beseler.Shared.Accounts.Requests;
 using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
 using System.Transactions;
 
 namespace Beseler.API.Accounts.Handlers;
 
 internal static class ConfirmEmailHandler
 {
-    [Authorize]
+    [AllowAnonymous]
     public static async Task<IResult> HandleAsync(
-        ClaimsPrincipal principal,
+        ConfirmEmailRequest request,
         IAccountRepository repository,
         TokenService tokenService,
         CancellationToken stoppingToken)
     {
-        if (int.TryParse(principal.Identity?.Name, out var accountId) is false)
+        var principal = await tokenService.ValidateAsync(request.ConfirmationCode);
+
+        if (int.TryParse(principal?.Identity?.Name, out var accountId) is false)
             return TypedResults.Unauthorized();
 
         if (principal.HasClaim(PrivateClaims.ConfirmEmail(tokenService.Audience)) is false)
