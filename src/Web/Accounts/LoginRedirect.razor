@@ -1,0 +1,9 @@
+﻿@inject NavigationManager _navigation
+@inject AuthenticationStateProvider _authStateProvider
+
+@code {
+    protected override void OnInitialized()
+    {
+        _navigation.NavigateTo(Routes.Login);
+    }
+}

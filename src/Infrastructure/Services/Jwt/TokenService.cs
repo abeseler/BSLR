@@ -1,7 +1,8 @@
 ﻿using Beseler.Domain.Accounts;
+using Beseler.Shared.Accounts;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Token = (System.Guid Id, System.DateTime ExpiresOn, string Token);
 
@@ -12,8 +13,10 @@ public sealed class TokenService
     private readonly SymmetricSecurityKey _symmetricSecurityKey;
     private readonly SigningCredentials _signingCredentials;
     private readonly TokenValidationParameters _validationParameters;
-    private readonly JwtSecurityTokenHandler _handler;
+    private readonly JsonWebTokenHandler _handler;
     private readonly JwtOptions _options;
+    public string Issuer => _options.Issuer;
+    public string Audience => _options.Audience;
 
     public TokenService(IOptions<JwtOptions> options)
     {
@@ -37,7 +40,14 @@ public sealed class TokenService
         };
     }
 
-    public ClaimsPrincipal? Validate(string token) => _handler.ValidateToken(token, _validationParameters, out _);
+    public async Task<ClaimsPrincipal?> ValidateAsync(string token)
+    {
+        var result = await _handler.ValidateTokenAsync(token, _validationParameters);
+        if (result.IsValid is false)
+            return null;
+
+        return new ClaimsPrincipal(result.ClaimsIdentity);
+    }
 
     public Token GenerateAccessToken(Account account)
     {
@@ -59,25 +69,46 @@ public sealed class TokenService
         return (tokenId, expiresOn, token);
     }
 
+    public Token GenerateToken(Account account, TimeSpan lifetime, Dictionary<string, string>? additionalClaims = null)
+    {
+        var tokenId = Guid.NewGuid();
+        var expiresOn = DateTime.UtcNow.Add(lifetime);
+        var claims = GetDefaultClaims(account, tokenId);
+
+        foreach (var (key, value) in additionalClaims ?? [])
+        {
+            claims.Add(new(key, value));
+        }
+
+        var token = WriteToken(claims, expiresOn);
+        return (tokenId, expiresOn, token);
+    }
+
     private string WriteToken(List<Claim> claims, DateTime expiresOn)
     {
-        var token = new JwtSecurityToken(
-            issuer: _options.Issuer,
-            audience: _options.Audience,
-            claims: claims,
-            expires: expiresOn,
-            signingCredentials: _signingCredentials);
+        var descriptor = new SecurityTokenDescriptor
+        {
+            Subject = new(claims),
+            Expires = expiresOn,
+            Issuer = _options.Issuer,
+            Audience = _options.Audience,
+            SigningCredentials = _signingCredentials
+        };
 
-        return _handler.WriteToken(token);
+        return _handler.CreateToken(descriptor);
     }
 
     private static List<Claim> GetDefaultClaims(Account account, Guid tokenId)
     {
-        return
-        [
+        var claims = new List<Claim>
+        {
             new(JwtRegisteredClaimNames.Jti, tokenId.ToString()),
-            new(JwtRegisteredClaimNames.Sub, account.AccountId.ToString()),
-            new(CustomClaimTypes.EmailVerified, account.IsVerified.ToString())
-        ];
+            new(JwtRegisteredClaimNames.Sub, account.AccountId.ToString())
+        };
+
+        if (account.IsVerified)
+            claims.Add(new(PrivateClaims.EmailVerified, account.IsVerified.ToString()));
+
+        return claims;
     }
 }

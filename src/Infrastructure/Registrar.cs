@@ -8,9 +8,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using SendGrid.Extensions.DependencyInjection;
-using System.IdentityModel.Tokens.Jwt;
 
 namespace Beseler.Infrastructure;
 
@@ -25,7 +25,7 @@ public static class Registrar
             options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
         }).AddJwtBearer(options =>
         {
-            var handler = new JwtSecurityTokenHandler();
+            var handler = new JsonWebTokenHandler();
             handler.InboundClaimTypeMap.Clear();
             options.TokenHandlers.Clear();
             options.TokenHandlers.Add(handler);

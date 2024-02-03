@@ -127,14 +127,14 @@
             _model.Password = null;
             _model.ConfirmPassword = null;
 
-            var response = await _http.PostAsJsonAsync("api/accounts/register", request);
+            var response = await _http.PostAsJsonAsync(Endpoints.Accounts.Register, request);
             if (response.IsSuccessStatusCode is false)
             {
                 Log.Error("Registration failed: {@Response}", response);
                 return;
             }
 
-            var loginResponse = await _http.PostAsJsonAsync("api/accounts/login", loginRequest);
+            var loginResponse = await _http.PostAsJsonAsync(Endpoints.Accounts.Login, loginRequest);
             if (loginResponse.IsSuccessStatusCode is false)
             {
                 Log.Error("Login failed: {@Response}", loginResponse);

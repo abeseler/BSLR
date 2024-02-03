@@ -1,6 +1,15 @@
-﻿<Router AppAssembly="@typeof(Program).Assembly">
+﻿@using Beseler.Web.Accounts
+
+<Router AppAssembly="@typeof(Program).Assembly">
     <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+        <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+            <NotAuthorized>
+                <LoginRedirect />
+            </NotAuthorized>
+            <Authorizing>
+                <p>Authorizing...</p>
+            </Authorizing>
+        </AuthorizeRouteView>
         <FocusOnNavigate RouteData="@routeData" Selector="h1" />
     </Found>
     <NotFound>

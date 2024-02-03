@@ -19,12 +19,15 @@ internal static class LoginAccountHandler
     CancellationToken stoppingToken)
     {
         var account = await repository.GetByEmailAsync(request.Email, stoppingToken);
-        if (account is null || account.IsLocked)
+        if (account is null)
             return TypedResults.Unauthorized();
 
         var verificationResult = passwordHasher.VerifyHashedPassword(account, account.SecretHash ?? "", request.Secret);
         if (verificationResult is not PasswordVerificationResult.Success)
             return TypedResults.Unauthorized();
+
+        if (account.IsLocked)
+            return TypedResults.Forbid();
 
         var (_, expiresOn, accessToken) = tokenService.GenerateAccessToken(account);
         var (_, _, refreshToken) = tokenService.GenerateRefreshToken(account);
