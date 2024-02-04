@@ -4,7 +4,7 @@ using System.Security.Claims;
 
 namespace Beseler.Web.Accounts.Services;
 
-internal sealed class AuthStateProvider() : AuthenticationStateProvider
+internal sealed class AuthStateProvider : AuthenticationStateProvider
 {
     private static readonly JsonWebTokenHandler _handler = new();
     private AuthenticationState _state = new(new());
@@ -50,6 +50,6 @@ internal sealed class AuthStateProvider() : AuthenticationStateProvider
         finally
         {
             NotifyAuthenticationStateChanged(Task.FromResult(_state));
-        }        
+        }
     }
 }

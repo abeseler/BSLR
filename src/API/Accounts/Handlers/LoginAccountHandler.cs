@@ -1,4 +1,5 @@
-﻿using Beseler.Domain.Accounts;
+﻿using Beseler.API.Application.Services;
+using Beseler.Domain.Accounts;
 using Beseler.Infrastructure.Services.Jwt;
 using Beseler.Shared.Accounts.Requests;
 using Beseler.Shared.Accounts.Responses;
@@ -12,11 +13,12 @@ internal static class LoginAccountHandler
 {
     [AllowAnonymous]
     public static async Task<IResult> HandleAsync(
-    LoginAccountRequest request,
-    TokenService tokenService,
-    IPasswordHasher<Account> passwordHasher,
-    IAccountRepository repository,
-    CancellationToken stoppingToken)
+        LoginAccountRequest request,
+        TokenService tokenService,
+        CookieService cookieService,
+        IPasswordHasher<Account> passwordHasher,
+        IAccountRepository repository,
+        CancellationToken stoppingToken)
     {
         var account = await repository.GetByEmailAsync(request.Email, stoppingToken);
         if (account is null)
@@ -30,7 +32,7 @@ internal static class LoginAccountHandler
             return TypedResults.Forbid();
 
         var (_, expiresOn, accessToken) = tokenService.GenerateAccessToken(account);
-        var (_, _, refreshToken) = tokenService.GenerateRefreshToken(account);
+        var (_, refreshExpiresOn, refreshToken) = tokenService.GenerateRefreshToken(account);
 
         var response = new AccessTokenResponse("Bearer", accessToken, expiresOn, refreshToken);
 
@@ -39,6 +41,8 @@ internal static class LoginAccountHandler
         using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
         var saveResult = await repository.SaveAsync(account, stoppingToken);
         scope.Complete();
+
+        cookieService.Set(CookieKeys.RefreshToken, refreshToken, refreshExpiresOn);
 
         return saveResult.Match<IResult>(
             onSuccess: _ => TypedResults.Ok(response),

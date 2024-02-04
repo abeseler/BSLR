@@ -1,5 +1,4 @@
 using Beseler.Web.Accounts.Services;
-using Beseler.Web.Common;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -20,7 +19,6 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<AuthStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(p => p.GetRequiredService<AuthStateProvider>());
-builder.Services.AddScoped<ApiClient>();
 
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddCascadingAuthenticationState();

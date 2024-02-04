@@ -38,6 +38,7 @@ public static class Registrar
 
         builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
         builder.Services.AddTransient<IPasswordHasher<Account>, PasswordHasher<Account>>();
+        builder.Services.AddScoped<CookieService>();
 
         builder.Services.AddEventConsumer<SendVerificationEmailWhenAccountCreatedConsumer, AccountCreatedDomainEvent>();
 

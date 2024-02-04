@@ -1,0 +1,48 @@
+﻿using Beseler.Shared;
+
+namespace Beseler.API.Application.Services;
+
+internal sealed class CookieService(IHttpContextAccessor accessor)
+{
+    private readonly HttpRequest? Request = accessor.HttpContext?.Request;
+    private readonly HttpResponse? Response = accessor.HttpContext?.Response;
+
+    public bool TryGetValue(CookieKeys key, out string? value)
+    {
+        value = null;
+        return Request?.Cookies.TryGetValue(key.ToString(), out value) ?? false;
+    }
+
+    public void Set(CookieKeys key, string value, DateTimeOffset? expiresOn = null)
+    {
+        Response?.Cookies.Delete(key.ToString());
+
+        if (string.IsNullOrWhiteSpace(value))
+            return;
+
+        Response?.Cookies.Append(key.ToString(), value, GetOptions(key, expiresOn));
+    }
+
+    public void Remove(CookieKeys key) => Response?.Cookies.Delete(key.ToString());
+
+    private static CookieOptions GetOptions(CookieKeys key, DateTimeOffset? expiresOn = null)
+    {
+        return key switch
+        {
+            CookieKeys.RefreshToken => new()
+            {
+                Expires = expiresOn ?? DateTimeOffset.UtcNow.AddDays(7),
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Path = Endpoints.Accounts.Refresh
+            },
+            _ => new()
+        };
+    }
+}
+
+public enum CookieKeys
+{
+    RefreshToken
+}

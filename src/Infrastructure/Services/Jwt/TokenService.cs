@@ -10,6 +10,7 @@ namespace Beseler.Infrastructure.Services.Jwt;
 
 public sealed class TokenService
 {
+    public const string RefreshTokenCookieKey = "X-Refresh-Token";
     private readonly SymmetricSecurityKey _symmetricSecurityKey;
     private readonly SigningCredentials _signingCredentials;
     private readonly TokenValidationParameters _validationParameters;

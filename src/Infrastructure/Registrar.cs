@@ -17,7 +17,7 @@ namespace Beseler.Infrastructure;
 public static class Registrar
 {
     public static WebApplicationBuilder AddInfrastructure(this WebApplicationBuilder builder)
-    {        
+    {
         builder.Services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
