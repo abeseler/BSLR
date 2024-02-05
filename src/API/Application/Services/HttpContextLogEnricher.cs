@@ -3,7 +3,7 @@ using Serilog.Events;
 
 namespace Beseler.API.Application.Services;
 
-public class HttpContextLogEnricher(IHttpContextAccessor accessor) : ILogEventEnricher
+internal sealed class HttpContextLogEnricher(IHttpContextAccessor accessor) : ILogEventEnricher
 {
     public void Enrich(LogEvent logEvent, ILogEventPropertyFactory propertyFactory)
     {

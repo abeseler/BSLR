@@ -56,7 +56,7 @@
     }
     private async Task Logout()
     {
-        _ = await _http.PostAsync(Endpoints.Accounts.Logout, null);
+        _ = await _http.DeleteAsync(Endpoints.Accounts.Refresh);
         _navigation.NavigateTo(Routes.Login);
         _authState.NotifyUserAuthentication();
     }

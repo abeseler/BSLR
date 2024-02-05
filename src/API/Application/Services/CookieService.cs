@@ -15,7 +15,7 @@ internal sealed class CookieService(IHttpContextAccessor accessor)
 
     public void Set(CookieKeys key, string value, DateTimeOffset? expiresOn = null)
     {
-        Response?.Cookies.Delete(key.ToString());
+        Response?.Cookies.Delete(key.ToString(), GetOptions(key));
 
         if (string.IsNullOrWhiteSpace(value))
             return;
@@ -23,7 +23,10 @@ internal sealed class CookieService(IHttpContextAccessor accessor)
         Response?.Cookies.Append(key.ToString(), value, GetOptions(key, expiresOn));
     }
 
-    public void Remove(CookieKeys key) => Response?.Cookies.Delete(key.ToString());
+    public void Remove(CookieKeys key)
+    {
+        Response?.Cookies.Delete(key.ToString(), GetOptions(key));
+    }
 
     private static CookieOptions GetOptions(CookieKeys key, DateTimeOffset? expiresOn = null)
     {
@@ -31,7 +34,7 @@ internal sealed class CookieService(IHttpContextAccessor accessor)
         {
             CookieKeys.RefreshToken => new()
             {
-                Expires = expiresOn ?? DateTimeOffset.UtcNow.AddDays(7),
+                Expires = expiresOn,
                 HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.Strict,
