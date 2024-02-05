@@ -1,7 +1,7 @@
-﻿namespace Beseler.Web.Common;
+﻿namespace Beseler.Web.Application;
 
 internal static class StorageKeys
 {
-    public const string AccessToken = "BSLR/accounts/login/AccessToken";
-    public const string UserInfo = "BSLR/accounts/info";
+    public const string Email = "BSLR/accounts/login/Email";
+    public const string RememberMe = "BSLR/accounts/login/RememberMe";
 }
