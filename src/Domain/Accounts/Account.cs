@@ -34,6 +34,11 @@ public sealed class Account : Aggregate
         return account;
     }
 
-    public void Verify() => IsVerified = true;
+    public void Verify()
+    {
+        LastLoginOn = DateTime.UtcNow;
+        IsVerified = true;
+    }
+
     public void Login() => LastLoginOn = DateTime.UtcNow;
 }

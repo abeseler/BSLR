@@ -1,4 +1,4 @@
-﻿namespace Beseler.Web.Application;
+﻿namespace Beseler.Web;
 
 internal static class StorageKeys
 {

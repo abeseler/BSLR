@@ -34,8 +34,6 @@ internal static class LoginAccountHandler
         var (_, expiresOn, accessToken) = tokenService.GenerateAccessToken(account);
         var (_, refreshExpiresOn, refreshToken) = tokenService.GenerateRefreshToken(account);
 
-        var response = new AccessTokenResponse("Bearer", accessToken, expiresOn, refreshToken);
-
         account.Login();
 
         using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
@@ -43,6 +41,7 @@ internal static class LoginAccountHandler
         scope.Complete();
 
         cookieService.Set(CookieKeys.RefreshToken, refreshToken, refreshExpiresOn);
+        var response = new AccessTokenResponse(accessToken, expiresOn);
 
         return saveResult.Match<IResult>(
             onSuccess: _ => TypedResults.Ok(response),

@@ -40,6 +40,6 @@ internal static class RefreshTokenHandler
 
         cookieService.Set(CookieKeys.RefreshToken, refreshToken, refreshExpiresOn);
 
-        return TypedResults.Ok(new AccessTokenResponse("Bearer", accessToken, expiresOn, refreshToken));
+        return TypedResults.Ok(new AccessTokenResponse(accessToken, expiresOn));
     }
 }

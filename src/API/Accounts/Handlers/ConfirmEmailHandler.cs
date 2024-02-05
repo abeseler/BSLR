@@ -1,7 +1,9 @@
-﻿using Beseler.Domain.Accounts;
+﻿using Beseler.API.Application.Services;
+using Beseler.Domain.Accounts;
 using Beseler.Infrastructure.Services.Jwt;
 using Beseler.Shared.Accounts;
 using Beseler.Shared.Accounts.Requests;
+using Beseler.Shared.Accounts.Responses;
 using Microsoft.AspNetCore.Authorization;
 using System.Transactions;
 
@@ -14,6 +16,7 @@ internal static class ConfirmEmailHandler
         ConfirmEmailRequest request,
         IAccountRepository repository,
         TokenService tokenService,
+        CookieService cookieService,
         CancellationToken stoppingToken)
     {
         var principal = await tokenService.ValidateAsync(request.ConfirmationCode);
@@ -36,8 +39,14 @@ internal static class ConfirmEmailHandler
         var saveResult = await repository.SaveAsync(account, stoppingToken);
         scope.Complete();
 
+        var (_, expiresOn, accessToken) = tokenService.GenerateAccessToken(account);
+        var (_, refreshExpiresOn, refreshToken) = tokenService.GenerateRefreshToken(account);
+
+        cookieService.Set(CookieKeys.RefreshToken, refreshToken, refreshExpiresOn);
+        var response = new AccessTokenResponse(accessToken, expiresOn);
+
         return saveResult.Match<IResult>(
-            onSuccess: _ => TypedResults.NoContent(),
+            onSuccess: _ => TypedResults.Ok(response),
             onFailure: error => TypedResults.UnprocessableEntity(error.Message));
     }
 }

@@ -2,19 +2,31 @@
 @inject AuthStateProvider _authState
 @inject NavigationManager _navigation
 
-<nav class="navbar navbar-expand-lg sticky-top bg-light" data-bs-theme="light">
+<nav class="navbar navbar-expand-lg sticky-top bg-light py-2" data-bs-theme="light">
     <div class="container-fluid">
+        <div class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="bi-list fs-4"></span>
+        </div>
         <div class="navbar-brand dropdown">
-            <span class="dropdown-toggle pointer" id="navbarDropdown" data-bs-toggle="dropdown">BSLR</span>
-            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <span class="dropdown-toggle pointer" id="navbarDropdown" data-bs-toggle="dropdown">
                 <AuthorizeView>
                     <Authorized>
-                        <li class="dropdown-item pointer" @onclick="() => _navigation.NavigateTo(Routes.Profile, false)">Profile</li>
+                        <span class="bi-person-fill fs-4"></span>
+                    </Authorized>
+                    <NotAuthorized>
+                        <span class="bi-person fs-4"></span>
+                    </NotAuthorized>
+                </AuthorizeView>
+            </span>
+            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-lg-start" aria-labelledby="navbarDropdown">
+                <AuthorizeView>
+                    <Authorized>
+                        <li class="dropdown-item pointer" @onclick="() => NavigateTo(Routes.Profile)">Profile</li>
                         <li><hr class="dropdown-divider"></li>
                         <li class="dropdown-item pointer" @onclick="Logout">Logout</li>
                     </Authorized>
                     <NotAuthorized>
-                        <li class="dropdown-item pointer" @onclick="() => _navigation.NavigateTo(Routes.Login, false)">Login</li>
+                        <li class="dropdown-item pointer" @onclick="() => NavigateTo(Routes.Login)">Login</li>
                     </NotAuthorized>
                 </AuthorizeView>
             </ul>
@@ -29,9 +41,6 @@
                 </li>
             </ul>
         </div>
-        <button class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
     </div>
 </nav>
 
@@ -40,6 +49,11 @@
 
     private void ToggleNavMenu() => _isNavMenuCollapsed = !_isNavMenuCollapsed;
     private string? GetCollapsedCssClass(bool isCollapsed) => isCollapsed ? "collapse" : null;
+    private void NavigateTo(string route)
+    {
+        _isNavMenuCollapsed = true;
+        _navigation.NavigateTo(route, false);
+    }
     private async Task Logout()
     {
         _ = await _http.PostAsync(Endpoints.Accounts.Logout, null);
