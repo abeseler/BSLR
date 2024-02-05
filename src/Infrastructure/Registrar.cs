@@ -4,6 +4,7 @@ using Beseler.Infrastructure.Data.Repositories;
 using Beseler.Infrastructure.Services;
 using Beseler.Infrastructure.Services.Jwt;
 using Beseler.Infrastructure.Services.SendGrid;
+using Beseler.Shared;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -44,7 +45,8 @@ public static class Registrar
                 ClockSkew = TimeSpan.FromSeconds(30)
             };
         });
-        builder.Services.AddAuthorization();
+        builder.Services.AddAuthorizationBuilder()
+            .AddPolicy(nameof(Policies.EmailVerified), Policies.EmailVerified);
 
         builder.Services
             .BindConfiguration<ConnectionStringOptions>()

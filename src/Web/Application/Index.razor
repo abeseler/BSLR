@@ -1,6 +1,5 @@
 ﻿@attribute [Route(Routes.Home)]
-@using System.Security.Claims
-@inject AuthStateProvider _authStateProvider
+@attribute [AllowAnonymous]
 
 <PageTitle>BSLR: Home</PageTitle>
 
@@ -26,10 +25,13 @@
 }
 
 @code {
+    [CascadingParameter]
+    private Task<AuthenticationState>? _authState { get; set; }
     private ClaimsPrincipal? _principal;
 
     protected override async Task OnInitializedAsync()
     {
-        _principal = (await _authStateProvider.GetAuthenticationStateAsync()).User;
+        if (_authState is not null)
+            _principal = (await _authState).User;
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Beseler.API.Application.Services;
 using Beseler.Domain.Accounts;
 using Beseler.Infrastructure.Services.Jwt;
+using Beseler.Shared.Accounts.Requests;
 using Beseler.Shared.Accounts.Responses;
 using Microsoft.AspNetCore.Authorization;
 
@@ -10,12 +11,14 @@ internal static class RefreshTokenHandler
 {
     [AllowAnonymous]
     public static async Task<IResult> HandleAsync(
+        RefreshTokenRequest? request,
         TokenService tokenService,
         CookieService cookieService,
         IAccountRepository repository,
         CancellationToken stoppingToken)
     {
-        if (cookieService.TryGetValue(CookieKeys.RefreshToken, out var token) is false)
+        var token = cookieService.TryGetValue(CookieKeys.RefreshToken, out var value) ? value : request?.RefreshToken; 
+        if (token is null)
             return TypedResults.Unauthorized();
 
         var principal = await tokenService.ValidateAsync(token!);
