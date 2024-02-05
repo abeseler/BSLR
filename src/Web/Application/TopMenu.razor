@@ -5,16 +5,16 @@
 <nav class="navbar navbar-expand-lg sticky-top bg-light" data-bs-theme="light">
     <div class="container-fluid">
         <div class="navbar-brand dropdown">
-            <span class="dropdown-toggle" id="navbarDropdown" data-bs-toggle="dropdown">BSLR</span>
+            <span class="dropdown-toggle pointer" id="navbarDropdown" data-bs-toggle="dropdown">BSLR</span>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                 <AuthorizeView>
                     <Authorized>
-                        <li class="dropdown-item" @onclick="() => _navigation.NavigateTo(Routes.Profile, false)">Profile</li>
+                        <li class="dropdown-item pointer" @onclick="() => _navigation.NavigateTo(Routes.Profile, false)">Profile</li>
                         <li><hr class="dropdown-divider"></li>
-                        <li class="dropdown-item" @onclick="Logout">Logout</li>
+                        <li class="dropdown-item pointer" @onclick="Logout">Logout</li>
                     </Authorized>
                     <NotAuthorized>
-                        <li class="dropdown-item" @onclick="() => _navigation.NavigateTo(Routes.Login, false)">Login</li>
+                        <li class="dropdown-item pointer" @onclick="() => _navigation.NavigateTo(Routes.Login, false)">Login</li>
                     </NotAuthorized>
                 </AuthorizeView>
             </ul>
@@ -25,7 +25,7 @@
                     <NavLink class="nav-link" href="@Routes.Home" Match="NavLinkMatch.All">Home</NavLink>
                 </li>
                 <li class="nav-item">
-                    <NavLink class="nav-link" href="fetchdata">Weather</NavLink>
+                    <NavLink class="nav-link" href="fetch-data">Weather</NavLink>
                 </li>
             </ul>
         </div>
