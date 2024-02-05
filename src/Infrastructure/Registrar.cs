@@ -45,8 +45,8 @@ public static class Registrar
                 ClockSkew = TimeSpan.FromSeconds(30)
             };
         });
-        builder.Services.AddAuthorizationBuilder()
-            .AddPolicy(nameof(Policies.EmailVerified), Policies.EmailVerified);
+
+        builder.Services.AddAuthorization(Policies.AuthorizationOptions);
 
         builder.Services
             .BindConfiguration<ConnectionStringOptions>()

@@ -56,21 +56,19 @@ internal sealed class AuthStateProvider(HttpClient http) : AuthenticationStatePr
         _expiresOn = principal is not null ? expiresOn : null;
         _state = principal is not null ? new AuthenticationState(principal) : new(new());
         
-        if (_state.User.Identity?.IsAuthenticated ?? false)
+        if (Token is not null)
             http.DefaultRequestHeaders.Authorization = new("Bearer", Token);
         else
             http.DefaultRequestHeaders.Authorization = null;
 
+        Log.Information("Authentication state changed: {User}", _state.User.Identity?.Name);
         NotifyAuthenticationStateChanged(Task.FromResult(_state));
     }
 
     private static ClaimsPrincipal? ParseToken(string? token)
     {
         if (token is null)
-        {
-            Log.Information("Authentication state has been reset");
             return null;
-        }
 
         var jwt = _handler.ReadJsonWebToken(token);
         if (jwt is null)

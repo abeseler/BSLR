@@ -10,4 +10,10 @@ public static class Policies
             .RequireAuthenticatedUser()
             .RequireClaim(PrivateClaims.EmailVerified)
             .Build();
+
+    public static Action<AuthorizationOptions> AuthorizationOptions => 
+        options =>
+        {
+            options.AddPolicy(nameof(EmailVerified), EmailVerified);
+        };
 }
