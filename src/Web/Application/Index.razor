@@ -8,30 +8,3 @@
 <p>This app is a sandbox for testing and building prototypes for ASPNET and Blazor.</p>
 <p>It is a work in progress and will be updated as I learn more about Blazor and ASPNET.</p>
 <p>For now, it is a simple app that allows users to register, login, and confirm their email address.</p>
-
-@if (_principal?.Identity is not null)
-{
-    <h3>Claims</h3>
-    <ul class="list-group w-50">
-        @if (_principal.Identity.IsAuthenticated)
-        {
-            <li class="list-group-item list-group-item-success">Authenticated</li>
-        }
-        @foreach (var claim in _principal.Claims)
-        {
-            <li class="list-group-item">@claim.Type: @claim.Value</li>
-        }
-    </ul>
-}
-
-@code {
-    [CascadingParameter]
-    private Task<AuthenticationState>? _authState { get; set; }
-    private ClaimsPrincipal? _principal;
-
-    protected override async Task OnInitializedAsync()
-    {
-        if (_authState is not null)
-            _principal = (await _authState).User;
-    }
-}

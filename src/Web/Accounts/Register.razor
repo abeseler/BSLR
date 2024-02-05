@@ -1,4 +1,5 @@
 ﻿@attribute [Route(Routes.Register)]
+@attribute [AllowAnonymous]
 @inject HttpClient _http
 @inject AuthStateProvider _authStateProvider
 @inject NavigationManager _navigation

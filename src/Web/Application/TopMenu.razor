@@ -1,47 +1,49 @@
-﻿@inject ILocalStorageService _localStorage
-@inject AuthStateProvider _authStateProvider
-@inject NavigationManager _navigationManager
+﻿@inject HttpClient _http
+@inject AuthStateProvider _authState
+@inject NavigationManager _navigation
 
 <nav class="navbar navbar-expand-lg sticky-top bg-light" data-bs-theme="light">
     <div class="container-fluid">
-        <a class="navbar-brand" href="#">BSLR</a>
-        <button class="navbar-toggler" type="button" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="@navMenuCssClass navbar-collapse" @onclick="ToggleNavMenu">
+        <div class="navbar-brand dropdown">
+            <span class="dropdown-toggle" id="navbarDropdown" data-bs-toggle="dropdown">BSLR</span>
+            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <AuthorizeView>
+                    <Authorized>
+                        <li class="dropdown-item" @onclick="() => _navigation.NavigateTo(Routes.Profile, false)">Profile</li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li class="dropdown-item" @onclick="Logout">Logout</li>
+                    </Authorized>
+                    <NotAuthorized>
+                        <li class="dropdown-item" @onclick="() => _navigation.NavigateTo(Routes.Login, false)">Login</li>
+                    </NotAuthorized>
+                </AuthorizeView>
+            </ul>
+        </div>
+        <div class="navbar-collapse @GetCollapsedCssClass(_isNavMenuCollapsed)" @onclick="ToggleNavMenu">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
                     <NavLink class="nav-link" href="@Routes.Home" Match="NavLinkMatch.All">Home</NavLink>
-                </li>
-                <li class="nav-item">
-                    <NavLink class="nav-link" href="@Routes.Login">Login</NavLink>
-                </li>
-                <li class="nav-item">
-                    <NavLink class="nav-link" href="@Routes.Register">Register</NavLink>
                 </li>
                 <li class="nav-item">
                     <NavLink class="nav-link" href="fetchdata">Weather</NavLink>
                 </li>
             </ul>
         </div>
-
-        <button class="btn btn-outline-primary" @onclick="GoToLogin">Login</button>
-        <button class="btn btn-outline-primary" @onclick="Logout">Logout</button>
+        <button class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
     </div>
 </nav>
 
 @code {
-    [CascadingParameter]
-    private Task<AuthenticationState>? authenticationState { get; set; }
-    private bool collapseNavMenu = true;
-    private string? navMenuCssClass => collapseNavMenu ? "collapse" : null;
-    private void ToggleNavMenu() => collapseNavMenu = !collapseNavMenu;
+    private bool _isNavMenuCollapsed = true;
 
-    private void GoToLogin() => _navigationManager.NavigateTo(Routes.Login, false);
-
-    private void Logout()
+    private void ToggleNavMenu() => _isNavMenuCollapsed = !_isNavMenuCollapsed;
+    private string? GetCollapsedCssClass(bool isCollapsed) => isCollapsed ? "collapse" : null;
+    private async Task Logout()
     {
-        _authStateProvider.NotifyUserAuthentication();
-        _navigationManager.NavigateTo(Routes.Login);
+        _ = await _http.PostAsync(Endpoints.Accounts.Logout, null);
+        _navigation.NavigateTo(Routes.Login);
+        _authState.NotifyUserAuthentication();
     }
 }

@@ -8,6 +8,7 @@ public static class Endpoints
 
         public const string Register = $"{BaseRoute}/register";
         public const string Login = $"{BaseRoute}/login";
+        public const string Logout = $"{BaseRoute}/logout";
         public const string Refresh = $"{BaseRoute}/refresh";
         public const string ConfirmEmail = $"{BaseRoute}/confirm-email";
     }

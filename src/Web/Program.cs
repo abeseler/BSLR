@@ -17,6 +17,7 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
+builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddAuthorizationCore(options =>
 {
     options.AddPolicy(nameof(Policies.EmailVerified), Policies.EmailVerified);
@@ -25,6 +26,5 @@ builder.Services.AddScoped<AuthStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(p => p.GetRequiredService<AuthStateProvider>());
 
 builder.Services.AddBlazoredLocalStorage();
-builder.Services.AddCascadingAuthenticationState();
 
 await builder.Build().RunAsync();

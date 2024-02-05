@@ -38,6 +38,11 @@ internal sealed class AuthStateProvider(HttpClient http) : AuthenticationStatePr
             Token = tokenData.AccessToken;
             _expiresOn = tokenData.ExpiresOn;
             _state = new AuthenticationState(principal);
+
+            if (_state.User.Identity?.IsAuthenticated ?? false)
+                http.DefaultRequestHeaders.Authorization = new("Bearer", Token);
+            else
+                http.DefaultRequestHeaders.Authorization = null;
         }
 
         return _state;
@@ -51,6 +56,11 @@ internal sealed class AuthStateProvider(HttpClient http) : AuthenticationStatePr
         _expiresOn = principal is not null ? expiresOn : null;
         _state = principal is not null ? new AuthenticationState(principal) : new(new());
         
+        if (_state.User.Identity?.IsAuthenticated ?? false)
+            http.DefaultRequestHeaders.Authorization = new("Bearer", Token);
+        else
+            http.DefaultRequestHeaders.Authorization = null;
+
         NotifyAuthenticationStateChanged(Task.FromResult(_state));
     }
 

@@ -1,0 +1,19 @@
+﻿@attribute [Route(Routes.Profile)]
+
+<PageTitle>BSLR: Profile</PageTitle>
+<h3>Profile</h3>
+
+<ul class="list-group w-50">
+    <AuthorizeView>
+        <Authorized>
+            <li class="list-group-item list-group-item-success">Authenticated</li>
+            @foreach (var claim in context.User.Claims)
+            {
+                <li class="list-group-item">@claim.Type: @claim.Value</li>
+            }
+        </Authorized>
+        <NotAuthorized>
+            <li class="list-group-item list-group-item-danger">Not Authenticated</li>
+        </NotAuthorized>
+    </AuthorizeView>
+</ul>

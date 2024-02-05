@@ -1,8 +1,5 @@
 ﻿@page "/fetchdata"
-@attribute [Authorize]
-@using Beseler.Web
-@using Beseler.Shared
-@inject HttpClient Http
+@inject HttpClient _http
 
 <PageTitle>BSLR: Forecast</PageTitle>
 
@@ -45,9 +42,5 @@
 
 @code {
     private WeatherForecast[]? forecasts;
-
-    protected override async Task OnInitializedAsync()
-    {
-        forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("api/WeatherForecast");
-    }
+    protected override async Task OnInitializedAsync() => forecasts = await _http.GetFromJsonAsync<WeatherForecast[]>("api/WeatherForecast");
 }

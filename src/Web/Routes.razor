@@ -4,7 +4,7 @@
     <Found Context="routeData">
         <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
             <NotAuthorized>
-                <LoginRedirect />
+                <Redirect Route="@Login" />
             </NotAuthorized>
             <Authorizing>
                 <p>Authorizing...</p>
@@ -25,4 +25,5 @@
     public const string Login = "/account/login";
     public const string Register = "/account/register";
     public const string ConfirmEmail = "/account/confirm-email";
+    public const string Profile = "/account/profile";
 }

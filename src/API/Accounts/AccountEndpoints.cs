@@ -22,13 +22,14 @@ internal static class AccountEndpoints
             .Produces<AccessTokenResponse>(200)
             .Produces(400);
 
+        group.MapPost(Endpoints.Accounts.Logout, LogoutAccountHandler.HandleAsync)
+            .Produces(204);
+
         group.MapPost(Endpoints.Accounts.Refresh, RefreshTokenHandler.HandleAsync)
-            .Produces<AccessTokenResponse>(200)
-            .Produces(400);
+            .Produces<AccessTokenResponse>(200);
 
         group.MapPost(Endpoints.Accounts.ConfirmEmail, ConfirmEmailHandler.HandleAsync)
-            .Produces(204)
-            .Produces(400);
+            .Produces(204);
 
         return app;
     }

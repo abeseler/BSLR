@@ -1,7 +1,10 @@
 ﻿@attribute [Route(Routes.ConfirmEmail)]
+@attribute [AllowAnonymous]
 @inject NavigationManager _navigation
 @inject AuthStateProvider _authStateProvider
 @inject HttpClient _http
+
+<PageTitle>BSLR: Confirm Email</PageTitle>
 
 @if (ConfirmationToken is null)
 {
