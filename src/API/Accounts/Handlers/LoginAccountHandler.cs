@@ -17,10 +17,11 @@ internal static class LoginAccountHandler
         TokenService tokenService,
         CookieService cookieService,
         IPasswordHasher<Account> passwordHasher,
-        IAccountRepository repository,
+        IAccountRepository accountRepository,
+        TokenRepository tokenRepository,
         CancellationToken stoppingToken)
     {
-        var account = await repository.GetByEmailAsync(request.Email, stoppingToken);
+        var account = await accountRepository.GetByEmailAsync(request.Email, stoppingToken);
         if (account is null)
             return TypedResults.Unauthorized();
 
@@ -29,19 +30,24 @@ internal static class LoginAccountHandler
 
         var passwordCheckResult = passwordHasher.VerifyHashedPassword(account, account.SecretHash ?? "", request.Secret);
         if (passwordCheckResult is not PasswordVerificationResult.Success)
+        {
             account.FailedLogin();
-        else
-            account.Login();
 
-        using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
-        var saveResult = await repository.SaveAsync(account, stoppingToken);
-        scope.Complete();
-
-        if (passwordCheckResult is not PasswordVerificationResult.Success)
+            using var failedLoginScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+            await accountRepository.SaveAsync(account, stoppingToken);
+            failedLoginScope.Complete();
             return TypedResults.Unauthorized();
+        }
+
+        account.Login();
 
         var (_, expiresOn, accessToken) = tokenService.GenerateAccessToken(account);
-        var (_, refreshExpiresOn, refreshToken) = tokenService.GenerateRefreshToken(account);
+        var (refreshTokenId, refreshExpiresOn, refreshToken) = tokenService.GenerateRefreshToken(account);
+
+        using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+        await tokenRepository.SaveAsync(TokenLog.Create(refreshTokenId, refreshExpiresOn, account), stoppingToken);
+        var saveResult = await accountRepository.SaveAsync(account, stoppingToken);
+        scope.Complete();
 
         cookieService.Set(CookieKeys.RefreshToken, refreshToken, refreshExpiresOn);
         var response = new AccessTokenResponse(accessToken, expiresOn);

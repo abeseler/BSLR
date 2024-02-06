@@ -4,6 +4,7 @@ using Beseler.Infrastructure.Services.Jwt;
 using Beseler.Shared.Accounts.Requests;
 using Beseler.Shared.Accounts.Responses;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace Beseler.API.Accounts.Handlers;
 
@@ -14,7 +15,8 @@ internal static class RefreshTokenHandler
         RefreshTokenRequest? request,
         TokenService tokenService,
         CookieService cookieService,
-        IAccountRepository repository,
+        IAccountRepository accountRepository,
+        TokenRepository tokenRepository,
         CancellationToken stoppingToken)
     {
         var token = cookieService.TryGetValue(CookieKeys.RefreshToken, out var value) ? value : request?.RefreshToken; 
@@ -28,7 +30,21 @@ internal static class RefreshTokenHandler
             return TypedResults.Unauthorized();
         }
 
-        var account = await repository.GetByIdAsync(accountId, stoppingToken);
+        if (Guid.TryParse(principal.FindFirst(JwtRegisteredClaimNames.Jti)?.Value, out var tokenId) is false)
+            return TypedResults.Unauthorized();
+
+        var tokenLog = await tokenRepository.GetByIdAsync(tokenId, stoppingToken);
+        if (tokenLog is null)
+            return TypedResults.Unauthorized();
+
+        if (tokenLog.IsRevoked || tokenLog.HasBeenReplaced)
+        {
+            await tokenRepository.RevokeChainAsync(tokenLog.TokenId, stoppingToken);
+            cookieService.Remove(CookieKeys.RefreshToken);
+            return TypedResults.Unauthorized();
+        }
+
+        var account = await accountRepository.GetByIdAsync(accountId, stoppingToken);
         if (account is not { IsLocked: false })
         {
             cookieService.Remove(CookieKeys.RefreshToken);
@@ -36,10 +52,13 @@ internal static class RefreshTokenHandler
         }
 
         var (_, expiresOn, accessToken) = tokenService.GenerateAccessToken(account);
-        var (_, refreshExpiresOn, refreshToken) = tokenService.GenerateRefreshToken(account);
+        var (refreshTokenId, refreshExpiresOn, refreshToken) = tokenService.GenerateRefreshToken(account);
+
+        tokenLog.ReplacedBy(refreshTokenId);
+        await tokenRepository.SaveAsync(tokenLog, stoppingToken);
+        await tokenRepository.SaveAsync(TokenLog.Create(refreshTokenId, refreshExpiresOn, account), stoppingToken);
 
         cookieService.Set(CookieKeys.RefreshToken, refreshToken, refreshExpiresOn);
-
         return TypedResults.Ok(new AccessTokenResponse(accessToken, expiresOn));
     }
 }
