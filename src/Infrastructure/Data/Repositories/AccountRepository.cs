@@ -90,7 +90,8 @@ internal sealed class AccountRepository(IDatabaseConnector connector, OutboxRepo
                 SecretHash = @SecretHash,
                 IsLocked = @IsLocked,
                 IsVerified = @IsVerified,
-                LastLoginOn = @LastLoginOn
+                LastLoginOn = @LastLoginOn,
+                FailedLoginAttempts = @FailedLoginAttempts
             WHERE AccountId = @AccountId;
             """, parameters);
 

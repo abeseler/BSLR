@@ -16,6 +16,7 @@ public sealed class Account : Aggregate
     public bool IsVerified { get; private set; }
     public DateTime CreatedOn { get; private set; }
     public DateTime? LastLoginOn { get; private set; }
+    public int FailedLoginAttempts { get; private set; }
 
     public static Account Create(string email, string givenName, string familyName, string secretHash)
     {
@@ -29,7 +30,7 @@ public sealed class Account : Aggregate
                 CreatedOn = DateTime.UtcNow
             };
 
-        account.Raise(new AccountCreatedDomainEvent(account.Email));
+        account.AddDomainEvent(new AccountCreatedDomainEvent(account.Email));
 
         return account;
     }
@@ -40,5 +41,19 @@ public sealed class Account : Aggregate
         IsVerified = true;
     }
 
-    public void Login() => LastLoginOn = DateTime.UtcNow;
+    public void Login()
+    {
+        LastLoginOn = DateTime.UtcNow;
+        FailedLoginAttempts = 0;
+    }
+
+    public void FailedLogin()
+    {
+        FailedLoginAttempts++;
+        if (FailedLoginAttempts < 5)
+            return;
+
+        IsLocked = true;
+        AddDomainEvent(new AccountLockedDomainEvent(Email, "Too many failed login attempts."));
+    }
 }

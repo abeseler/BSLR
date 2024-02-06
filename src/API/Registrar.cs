@@ -40,7 +40,9 @@ public static class Registrar
         builder.Services.AddTransient<IPasswordHasher<Account>, PasswordHasher<Account>>();
         builder.Services.AddScoped<CookieService>();
 
-        builder.Services.AddEventConsumer<SendVerificationEmailWhenAccountCreatedConsumer, AccountCreatedDomainEvent>();
+        builder.Services
+            .AddEventConsumer<SendVerificationEmailWhenAccountCreatedConsumer, AccountCreatedDomainEvent>()
+            .AddEventConsumer<SendAccountLockedEmailWhenAccountLockedConsumer, AccountLockedDomainEvent>();
 
         builder.Services.AddHostedService<OutboxService>();
 

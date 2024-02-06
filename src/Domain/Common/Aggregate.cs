@@ -6,11 +6,11 @@ public abstract class Aggregate
 
     public IReadOnlyCollection<DomainEvent> DomainEvents => _domainEvents ??= [];
 
-    protected void Raise(DomainEvent domainEvent)
+    protected void AddDomainEvent<T>(T domainEvent) where T : DomainEvent
     {
         _domainEvents ??= [];
         _domainEvents.Add(domainEvent);
     }
 
-    public void ClearEvents() => _domainEvents?.Clear();
+    public void ClearDomainEvents() => _domainEvents?.Clear();
 }

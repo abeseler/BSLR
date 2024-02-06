@@ -13,6 +13,6 @@ internal abstract class AggregateRepository(OutboxRepository repository)
 
         var messages = model.DomainEvents.Select(x => x.ToOutboxMessage());
         await repository.InsertAllAsync(messages, stoppingToken);
-        model.ClearEvents();
+        model.ClearDomainEvents();
     }
 }

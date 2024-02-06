@@ -24,21 +24,24 @@ internal static class LoginAccountHandler
         if (account is null)
             return TypedResults.Unauthorized();
 
-        var verificationResult = passwordHasher.VerifyHashedPassword(account, account.SecretHash ?? "", request.Secret);
-        if (verificationResult is not PasswordVerificationResult.Success)
-            return TypedResults.Unauthorized();
-
         if (account.IsLocked)
             return TypedResults.Forbid();
 
-        var (_, expiresOn, accessToken) = tokenService.GenerateAccessToken(account);
-        var (_, refreshExpiresOn, refreshToken) = tokenService.GenerateRefreshToken(account);
-
-        account.Login();
+        var passwordCheckResult = passwordHasher.VerifyHashedPassword(account, account.SecretHash ?? "", request.Secret);
+        if (passwordCheckResult is not PasswordVerificationResult.Success)
+            account.FailedLogin();
+        else
+            account.Login();
 
         using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
         var saveResult = await repository.SaveAsync(account, stoppingToken);
         scope.Complete();
+
+        if (passwordCheckResult is not PasswordVerificationResult.Success)
+            return TypedResults.Unauthorized();
+
+        var (_, expiresOn, accessToken) = tokenService.GenerateAccessToken(account);
+        var (_, refreshExpiresOn, refreshToken) = tokenService.GenerateRefreshToken(account);
 
         cookieService.Set(CookieKeys.RefreshToken, refreshToken, refreshExpiresOn);
         var response = new AccessTokenResponse(accessToken, expiresOn);
