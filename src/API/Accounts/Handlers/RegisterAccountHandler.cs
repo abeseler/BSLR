@@ -26,7 +26,7 @@ internal static class RegisterAccountHandler
         var account = Account.Create(request.Email, request.GivenName, request.FamilyName, passwordHash);
 
         using var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
-        var saveResult = await repository.SaveAsync(account, stoppingToken);
+        var saveResult = await repository.SaveChangesAsync(account, stoppingToken);
         transactionScope.Complete();
 
         return saveResult.Match<IResult>(

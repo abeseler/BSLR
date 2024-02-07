@@ -1,4 +1,4 @@
-﻿using Beseler.Domain.Accounts.Events;
+﻿using Beseler.Domain.Accounts;
 using System.Text.Json.Serialization;
 
 namespace Beseler.Domain.Common;

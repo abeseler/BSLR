@@ -5,15 +5,17 @@ namespace Beseler.Shared;
 
 public static class Policies
 {
-    public static AuthorizationPolicy EmailVerified =>
+    public const string EmailVerified = nameof(EmailVerified);
+
+    private static AuthorizationPolicy EmailVerifiedPolicy =>
         new AuthorizationPolicyBuilder()
             .RequireAuthenticatedUser()
             .RequireClaim(PrivateClaims.EmailVerified)
             .Build();
 
-    public static Action<AuthorizationOptions> AuthorizationOptions => 
+    public static Action<AuthorizationOptions> AuthorizationOptions =>
         options =>
         {
-            options.AddPolicy(nameof(EmailVerified), EmailVerified);
+            options.AddPolicy(EmailVerified, EmailVerifiedPolicy);
         };
 }

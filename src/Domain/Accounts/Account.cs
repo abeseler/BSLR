@@ -1,5 +1,4 @@
-﻿using Beseler.Domain.Accounts.Events;
-using Beseler.Domain.Common;
+﻿using Beseler.Domain.Common;
 
 namespace Beseler.Domain.Accounts;
 
@@ -37,19 +36,23 @@ public sealed class Account : Aggregate
 
     public void Verify()
     {
+        HasUnsavedChange();
         LastLoginOn = DateTime.UtcNow;
         IsVerified = true;
     }
 
     public void Login()
     {
+        HasUnsavedChange();
         LastLoginOn = DateTime.UtcNow;
         FailedLoginAttempts = 0;
     }
 
     public void FailedLogin()
     {
+        HasUnsavedChange();
         FailedLoginAttempts++;
+
         if (FailedLoginAttempts < 5)
             return;
 

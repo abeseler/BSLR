@@ -36,7 +36,7 @@ internal static class ConfirmEmailHandler
         account.Verify();
 
         using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
-        var saveResult = await repository.SaveAsync(account, stoppingToken);
+        var saveResult = await repository.SaveChangesAsync(account, stoppingToken);
         scope.Complete();
 
         var (_, expiresOn, accessToken) = tokenService.GenerateAccessToken(account);

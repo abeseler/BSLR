@@ -19,7 +19,7 @@ internal static class RefreshTokenHandler
         TokenRepository tokenRepository,
         CancellationToken stoppingToken)
     {
-        var token = cookieService.TryGetValue(CookieKeys.RefreshToken, out var value) ? value : request?.RefreshToken; 
+        var token = cookieService.TryGetValue(CookieKeys.RefreshToken, out var value) ? value : request?.RefreshToken;
         if (token is null)
             return TypedResults.Unauthorized();
 

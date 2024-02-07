@@ -35,14 +35,17 @@ internal sealed class AccountRepository(IDatabaseConnector connector, OutboxRepo
             """, parameters);
     }
 
-    public async Task<Result<Account, Error>> SaveAsync(Account account, CancellationToken stoppingToken = default)
+    public async Task<Result<Account, Error>> SaveChangesAsync(Account account, CancellationToken stoppingToken = default)
     {
-        var result = account.AccountId == 0 ?
-            await InsertAsync(account, stoppingToken) :
-            await UpdateAsync(account, stoppingToken);
+        var result = account switch
+        {
+            { AccountId: 0 } => await InsertAsync(account, stoppingToken),
+            { HasUnsavedChanges: true } => await UpdateAsync(account, stoppingToken),
+            _ => account
+        };
 
         if (result.IsSuccess)
-            await base.SaveAsync(account, stoppingToken);
+            await base.SaveChangesAsync(account, stoppingToken);
 
         return result;
     }

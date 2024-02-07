@@ -55,7 +55,7 @@ internal sealed class AuthStateProvider(HttpClient http) : AuthenticationStatePr
         Token = principal is not null ? token : null;
         _expiresOn = principal is not null ? expiresOn : null;
         _state = principal is not null ? new AuthenticationState(principal) : new(new());
-        
+
         if (Token is not null)
             http.DefaultRequestHeaders.Authorization = new("Bearer", Token);
         else

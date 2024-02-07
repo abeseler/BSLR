@@ -1,16 +1,16 @@
 ﻿using Beseler.API.Application;
-using Beseler.Domain.Accounts.Events;
+using Beseler.Domain.Accounts;
 using Beseler.Infrastructure.Services;
 
 namespace Beseler.API.Accounts.EventConsumers;
 
 internal sealed class SendAccountLockedEmailWhenAccountLockedConsumer(IEmailService emailService) : IEventConsumer
 {
-    public async Task ConsumeAsync(string eventData, CancellationToken stoppingToken = default)
+    public async Task ConsumeAsync(string payload, CancellationToken stoppingToken = default)
     {
-        var dto = JsonSerializer.Deserialize<AccountLockedDomainEvent>(eventData);
+        var dto = JsonSerializer.Deserialize<AccountLockedDomainEvent>(payload);
         if (dto?.Email is null)
-            throw new InvalidOperationException($"Domain event is missing data: {eventData}");
+            throw new InvalidOperationException($"Domain event is missing data: {payload}");
 
         var emailMessage = new EmailMessage
         {
@@ -39,5 +39,10 @@ internal sealed class SendAccountLockedEmailWhenAccountLockedConsumer(IEmailServ
         };
 
         await emailService.SendAsync(emailMessage, stoppingToken);
+    }
+
+    public Task ConsumeAsync(AccountLockedDomainEvent eventModel, CancellationToken stoppingToken = default)
+    {
+        throw new NotImplementedException();
     }
 }

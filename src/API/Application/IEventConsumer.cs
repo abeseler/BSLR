@@ -2,5 +2,5 @@
 
 internal interface IEventConsumer
 {
-    Task ConsumeAsync(string eventData, CancellationToken stoppingToken = default);
+    Task ConsumeAsync(string payload, CancellationToken stoppingToken = default);
 }

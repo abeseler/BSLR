@@ -34,7 +34,7 @@ internal static class LoginAccountHandler
             account.FailedLogin();
 
             using var failedLoginScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
-            await accountRepository.SaveAsync(account, stoppingToken);
+            await accountRepository.SaveChangesAsync(account, stoppingToken);
             failedLoginScope.Complete();
             return TypedResults.Unauthorized();
         }
@@ -46,7 +46,7 @@ internal static class LoginAccountHandler
 
         using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
         await tokenRepository.SaveAsync(TokenLog.Create(refreshTokenId, refreshExpiresOn, account), stoppingToken);
-        var saveResult = await accountRepository.SaveAsync(account, stoppingToken);
+        var saveResult = await accountRepository.SaveChangesAsync(account, stoppingToken);
         scope.Complete();
 
         cookieService.Set(CookieKeys.RefreshToken, refreshToken, refreshExpiresOn);

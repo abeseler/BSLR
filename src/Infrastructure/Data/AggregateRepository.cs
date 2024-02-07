@@ -6,13 +6,13 @@ namespace Beseler.Infrastructure.Data;
 
 internal abstract class AggregateRepository(OutboxRepository repository)
 {
-    protected virtual async Task SaveAsync(Aggregate model, CancellationToken stoppingToken = default)
+    protected virtual async Task SaveChangesAsync(Aggregate model, CancellationToken stoppingToken = default)
     {
         if (model.DomainEvents.Count == 0)
             return;
 
         var messages = model.DomainEvents.Select(x => x.ToOutboxMessage());
         await repository.InsertAllAsync(messages, stoppingToken);
-        model.ClearDomainEvents();
+        model.SavedChanges();
     }
 }

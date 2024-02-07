@@ -3,7 +3,6 @@ using Beseler.API.Application;
 using Beseler.API.Application.Services;
 using Beseler.API.Swagger;
 using Beseler.Domain.Accounts;
-using Beseler.Domain.Accounts.Events;
 using Beseler.Domain.Common;
 using Beseler.Infrastructure.Data;
 using FluentValidation;
@@ -27,7 +26,6 @@ public static class Registrar
             .Filter.ByExcluding("RequestPath like '/_swagger%'")
             .Filter.ByExcluding("RequestPath like '/_framework%'")
             .Enrich.FromLogContext());
-
 
         builder.Services.AddSingleton<ILogEventEnricher, HttpContextLogEnricher>();
         builder.Services.AddHttpContextAccessor();
