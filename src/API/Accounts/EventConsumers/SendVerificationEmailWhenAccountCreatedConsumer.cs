@@ -6,9 +6,9 @@ using Beseler.Shared.Accounts;
 
 namespace Beseler.API.Accounts.EventConsumers;
 
-internal sealed class SendVerificationEmailWhenAccountCreatedConsumer(TokenService tokenService, IAccountRepository repository, IEmailService emailService) : IEventConsumer
+internal sealed class SendVerificationEmailWhenAccountCreatedConsumer(TokenService tokenService, IAccountRepository repository, IEmailService emailService) : IDomainEventHandler
 {
-    public async Task ConsumeAsync(string payload, CancellationToken stoppingToken = default)
+    public async Task HandleAsync(string payload, CancellationToken stoppingToken = default)
     {
         var email = JsonSerializer.Deserialize<AccountCreatedDomainEvent>(payload)?.Email
             ?? throw new InvalidOperationException($"Domain event is missing email: {payload}");

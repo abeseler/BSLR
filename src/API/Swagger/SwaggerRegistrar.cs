@@ -6,7 +6,7 @@ namespace Beseler.API.Swagger;
 
 internal static class SwaggerRegistrar
 {
-    public static void AddSwaggerWithVersioning(this IServiceCollection services)
+    public static IServiceCollection AddSwaggerWithVersioning(this IServiceCollection services)
     {
         services.AddEndpointsApiExplorer();
         services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
@@ -26,6 +26,8 @@ internal static class SwaggerRegistrar
         {
             options.GroupNameFormat = "'v'VVV";
         });
+
+        return services;
     }
 
     public static void MapSwaggerUI(this WebApplication app)

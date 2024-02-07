@@ -4,9 +4,9 @@ using Beseler.Infrastructure.Services;
 
 namespace Beseler.API.Accounts.EventConsumers;
 
-internal sealed class SendAccountLockedEmailWhenAccountLockedConsumer(IEmailService emailService) : IEventConsumer
+internal sealed class SendAccountLockedEmailWhenAccountLockedConsumer(IEmailService emailService) : IDomainEventHandler
 {
-    public async Task ConsumeAsync(string payload, CancellationToken stoppingToken = default)
+    public async Task HandleAsync(string payload, CancellationToken stoppingToken = default)
     {
         var dto = JsonSerializer.Deserialize<AccountLockedDomainEvent>(payload);
         if (dto?.Email is null)

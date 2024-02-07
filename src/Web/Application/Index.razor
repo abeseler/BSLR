@@ -6,10 +6,13 @@
 <section class="container-fluid">
     <AuthorizeView Policy="@Policies.EmailVerified">
         <NotAuthorized>
-            <div class="alert alert-primary card shadow">
-                <div class="alert-heading">Account Not Verified</div>
-                <div>Please check your email for a link to finish setting up your account.</div
-            </div>
+            @if (context.User.Identity?.IsAuthenticated ?? false)
+            {
+                <div class="alert alert-primary card shadow">
+                    <div class="alert-heading">Account Not Verified</div>
+                    <div>Please check your email for a link to finish setting up your account.</div
+                </div>    
+            }            
         </NotAuthorized>
     </AuthorizeView>
 

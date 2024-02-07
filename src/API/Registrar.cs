@@ -27,33 +27,30 @@ public static class Registrar
             .Filter.ByExcluding("RequestPath like '/_framework%'")
             .Enrich.FromLogContext());
 
-        builder.Services.AddSingleton<ILogEventEnricher, HttpContextLogEnricher>();
-        builder.Services.AddHttpContextAccessor();
-
-        builder.Services.AddSwaggerWithVersioning();
-        builder.Services.AddHealthChecks()
-            .AddCheck<DatabaseHealthCheck>("Database");
-
-        builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
-        builder.Services.AddTransient<IPasswordHasher<Account>, PasswordHasher<Account>>();
-        builder.Services.AddScoped<CookieService>();
+        builder.Services
+            .AddHttpContextAccessor()
+            .AddValidatorsFromAssembly(Assembly.GetExecutingAssembly())
+            .AddSingleton<ILogEventEnricher, HttpContextLogEnricher>()
+            .AddTransient<IPasswordHasher<Account>, PasswordHasher<Account>>()
+            .AddScoped<CookieService>()
+            .AddDomainEventHandler<SendVerificationEmailWhenAccountCreatedConsumer, AccountCreatedDomainEvent>()
+            .AddDomainEventHandler<SendAccountLockedEmailWhenAccountLockedConsumer, AccountLockedDomainEvent>();
 
         builder.Services
-            .AddEventConsumer<SendVerificationEmailWhenAccountCreatedConsumer, AccountCreatedDomainEvent>()
-            .AddEventConsumer<SendAccountLockedEmailWhenAccountLockedConsumer, AccountLockedDomainEvent>();
+            .AddSwaggerWithVersioning()
+            .AddHealthChecks()
+                .AddCheck<DatabaseHealthCheck>("Database");
 
-        builder.Services.AddHostedService<OutboxService>();
-
-        builder.Services.AddRazorComponents()
-            .AddInteractiveWebAssemblyComponents();
+        builder.Services
+            .AddHostedService<OutboxService>()
+            .AddRazorComponents().AddInteractiveWebAssemblyComponents();
 
         return builder;
     }
 
-    private static IServiceCollection AddEventConsumer<TConsumer, TEvent>(this IServiceCollection services) where TConsumer : class, IEventConsumer where TEvent : DomainEvent
+    private static IServiceCollection AddDomainEventHandler<TConsumer, TEvent>(this IServiceCollection services) where TConsumer : class, IDomainEventHandler where TEvent : DomainEvent
     {
-        services.AddKeyedScoped<IEventConsumer, TConsumer>(typeof(TEvent).Name);
-
+        services.AddKeyedScoped<IDomainEventHandler, TConsumer>(typeof(TEvent).Name);
         return services;
     }
 }
