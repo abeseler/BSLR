@@ -1,0 +1,10 @@
+﻿@page "/status-code/{statusCode:int}"
+
+<h3>StatusCode</h3>
+
+<p>Code: @statusCode</p>
+
+@code {
+    [Parameter]
+    public int statusCode { get; set; }
+}
