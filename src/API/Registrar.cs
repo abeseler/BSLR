@@ -22,7 +22,6 @@ public static class Registrar
             .WriteTo.Seq(context.Configuration["Seq:ServerUrl"] ?? "")
             .Filter.ByExcluding("RequestPath = '/_health'")
             .Filter.ByExcluding("RequestPath = '/_ping'")
-            .Filter.ByExcluding("RequestPath = '/coffee'")
             .Filter.ByExcluding("RequestPath like '/_swagger%'")
             .Filter.ByExcluding("RequestPath like '/_framework%'")
             .Enrich.FromLogContext());

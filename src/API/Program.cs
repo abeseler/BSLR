@@ -3,6 +3,7 @@ using Beseler.API;
 using Beseler.API.Accounts;
 using Beseler.API.Application;
 using Beseler.API.Application.Pages;
+using Beseler.API.Application.Services;
 using Beseler.API.Swagger;
 using Beseler.Domain;
 using Beseler.Infrastructure;
@@ -18,13 +19,13 @@ if (app.Environment.IsDevelopment())
 else
     app.UseHsts();
 
+app.UseStatusCodeMiddleware();
 app.UseStaticFiles();
 app.UseExceptionHandler(app =>
     app.Run(async context => await TypedResults.Problem().ExecuteAsync(context)));
 
 app.UseSerilogRequestLogging();
 
-app.UseStatusCodePagesWithReExecute("/status-code/{0}");
 app.UseAntiforgery();
 
 app.UseAuthentication();
