@@ -2,7 +2,6 @@ using Asp.Versioning;
 using Beseler.API;
 using Beseler.API.Accounts;
 using Beseler.API.Application;
-using Beseler.API.Application.Pages;
 using Beseler.API.Application.Services;
 using Beseler.API.Swagger;
 using Beseler.Domain;

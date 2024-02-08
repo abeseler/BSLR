@@ -6,7 +6,7 @@ using Beseler.Shared.Accounts;
 
 namespace Beseler.API.Accounts.EventConsumers;
 
-internal sealed class SendVerificationEmailWhenAccountCreatedConsumer(TokenService tokenService, IAccountRepository repository, IEmailService emailService) : IDomainEventHandler
+internal sealed class SendVerificationEmailWhenAccountCreatedHandler(TokenService tokenService, IAccountRepository repository, IEmailService emailService) : IDomainEventHandler
 {
     public async Task HandleAsync(string payload, CancellationToken stoppingToken = default)
     {

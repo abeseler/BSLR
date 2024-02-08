@@ -4,7 +4,7 @@ using Beseler.Infrastructure.Data.Repositories;
 
 namespace Beseler.API.Application.Services;
 
-internal sealed class OutboxService(IServiceProvider services, OutboxRepository repository, ILogger<OutboxService> logger) : BackgroundService
+internal sealed class OutboxMonitorService(IServiceProvider services, OutboxRepository repository, ILogger<OutboxMonitorService> logger) : BackgroundService
 {
     private readonly PeriodicTimer _timer = new(TimeSpan.FromSeconds(5));
 
@@ -22,9 +22,21 @@ internal sealed class OutboxService(IServiceProvider services, OutboxRepository 
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Error occurred executing {ServiceName}", nameof(OutboxService));
+                logger.LogError(ex, "Error occurred executing {ServiceName}", nameof(OutboxMonitorService));
             }
         }
+    }
+
+    public override Task StartAsync(CancellationToken stoppingToken)
+    {
+        logger.LogInformation("Starting {Service}: {ServiceId}", nameof(OutboxMonitorService), OutboxRepository.ServiceId);
+        return base.StartAsync(stoppingToken);
+    }
+
+    public override Task StopAsync(CancellationToken stoppingToken)
+    {
+        logger.LogInformation("Stopping {Service}: {ServiceId}", nameof(OutboxMonitorService), OutboxRepository.ServiceId);
+        return base.StopAsync(stoppingToken);
     }
 
     private async Task ProcessMessage(OutboxMessage message, CancellationToken stoppingToken)

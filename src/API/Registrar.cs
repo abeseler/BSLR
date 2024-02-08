@@ -8,7 +8,6 @@ using Beseler.Infrastructure.Data;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Serilog.Core;
-using System.Reflection;
 
 namespace Beseler.API;
 
@@ -28,12 +27,12 @@ public static class Registrar
 
         builder.Services
             .AddHttpContextAccessor()
-            .AddValidatorsFromAssembly(Assembly.GetExecutingAssembly())
+            .AddValidatorsFromAssemblyContaining<Program>()
             .AddSingleton<ILogEventEnricher, HttpContextLogEnricher>()
             .AddTransient<IPasswordHasher<Account>, PasswordHasher<Account>>()
             .AddScoped<CookieService>()
-            .AddDomainEventHandler<SendVerificationEmailWhenAccountCreatedConsumer, AccountCreatedDomainEvent>()
-            .AddDomainEventHandler<SendAccountLockedEmailWhenAccountLockedConsumer, AccountLockedDomainEvent>();
+            .AddDomainEventHandler<SendVerificationEmailWhenAccountCreatedHandler, AccountCreatedDomainEvent>()
+            .AddDomainEventHandler<SendAccountLockedEmailWhenAccountLockedHandler, AccountLockedDomainEvent>();
 
         builder.Services
             .AddSwaggerWithVersioning()
@@ -41,15 +40,15 @@ public static class Registrar
                 .AddCheck<DatabaseHealthCheck>("Database");
 
         builder.Services
-            .AddHostedService<OutboxService>()
+            .AddHostedService<OutboxMonitorService>()
             .AddRazorComponents().AddInteractiveWebAssemblyComponents();
 
         return builder;
     }
 
-    private static IServiceCollection AddDomainEventHandler<TConsumer, TEvent>(this IServiceCollection services) where TConsumer : class, IDomainEventHandler where TEvent : DomainEvent
+    private static IServiceCollection AddDomainEventHandler<THandler, TEvent>(this IServiceCollection services) where THandler : class, IDomainEventHandler where TEvent : DomainEvent
     {
-        services.AddKeyedScoped<IDomainEventHandler, TConsumer>(typeof(TEvent).Name);
+        services.AddKeyedScoped<IDomainEventHandler, THandler>(typeof(TEvent).Name);
         return services;
     }
 }

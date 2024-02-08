@@ -5,7 +5,8 @@
       "launchBrowser": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "ConnectionStrings__Database": "Server=localhost,1433;Database=App;User=sa;Password=P@ssw0rd;Encrypt=False"
+        "ConnectionStrings__Database": "Server=localhost,1433;Database=App;User=sa;Password=P@ssw0rd;Encrypt=False",
+        "Seq__ServerUrl": "http://localhost:5341"
       },
       "dotnetRunMessages": true,
       "inspectUri": "{wsProtocol}://{url.hostname}:{url.port}/_framework/debug/ws-proxy?browser={browserInspectUri}",

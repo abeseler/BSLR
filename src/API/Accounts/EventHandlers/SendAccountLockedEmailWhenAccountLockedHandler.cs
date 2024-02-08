@@ -4,7 +4,7 @@ using Beseler.Infrastructure.Services;
 
 namespace Beseler.API.Accounts.EventConsumers;
 
-internal sealed class SendAccountLockedEmailWhenAccountLockedConsumer(IEmailService emailService) : IDomainEventHandler
+internal sealed class SendAccountLockedEmailWhenAccountLockedHandler(IEmailService emailService) : IDomainEventHandler
 {
     public async Task HandleAsync(string payload, CancellationToken stoppingToken = default)
     {
