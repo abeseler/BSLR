@@ -28,6 +28,10 @@ internal static class AccountEndpoints
         group.MapPost(Endpoints.Accounts.Refresh, RefreshTokenHandler.HandleAsync)
             .Produces<AccessTokenResponse>(200);
 
+        group.MapGet(Endpoints.Accounts.ConfirmEmail, ResendVerificationEmailHandler.HandleAsync)
+            .Produces(204)
+            .Produces(400);
+
         group.MapPost(Endpoints.Accounts.ConfirmEmail, ConfirmEmailHandler.HandleAsync)
             .Produces(200)
             .Produces(400);

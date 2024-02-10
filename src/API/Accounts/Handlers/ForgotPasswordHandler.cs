@@ -25,7 +25,7 @@ internal static class ForgotPasswordHandler
             ToEmail = account.Email,
             ToName = account.GivenName ?? account.Email,
             Subject = "Reset your password",
-            Body = $"Paste the following link into your browser to reset your password: {tokenService.Audience}/account/reset-password?token={token}",
+            Body = $"To reset your password, navigate to the following url in your browser: {tokenService.Audience}/account/reset-password?token={token}",
             BodyHtml = $"""
             <!DOCTYPE html>
             <html lang="en">

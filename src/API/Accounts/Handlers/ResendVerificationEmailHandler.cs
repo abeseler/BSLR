@@ -1,20 +1,29 @@
-﻿using Beseler.API.Application;
-using Beseler.Domain.Accounts;
+﻿using Beseler.Domain.Accounts;
 using Beseler.Infrastructure.Services;
 using Beseler.Infrastructure.Services.Jwt;
 using Beseler.Shared.Accounts;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
-namespace Beseler.API.Accounts.EventHandlers;
+namespace Beseler.API.Accounts.Handlers;
 
-internal sealed class SendVerificationEmailWhenAccountCreatedHandler(TokenService tokenService, IAccountRepository repository, IEmailService emailService) : IDomainEventHandler
+internal sealed class ResendVerificationEmailHandler
 {
-    public async Task HandleAsync(string payload, CancellationToken stoppingToken = default)
+    [Authorize]
+    public static async Task<IResult> HandleAsync(ClaimsPrincipal principal, IAccountRepository accountRepository, TokenService tokenService, IEmailService emailService, CancellationToken stoppingToken)
     {
-        var email = JsonSerializer.Deserialize<AccountCreatedDomainEvent>(payload)?.Email
-            ?? throw new InvalidOperationException($"Domain event is missing email: {payload}");
+        if (int.TryParse(principal.Identity?.Name, out var accountId) is false)
+            return TypedResults.Unauthorized();
 
-        var account = await repository.GetByEmailAsync(email, stoppingToken)
-            ?? throw new InvalidOperationException($"Account not found: {email}");
+        var account = await accountRepository.GetByIdAsync(accountId, stoppingToken);
+        if (account is null)
+            return TypedResults.Unauthorized();
+
+        if (account.IsLocked)
+            return TypedResults.Forbid();
+
+        if (account.IsVerified)
+            return TypedResults.BadRequest("Account email has already been verified.");
 
         var token = tokenService.GenerateToken(account, TimeSpan.FromHours(1), [new(PrivateClaims.ConfirmEmail(tokenService.Audience), account.Email)]);
 
@@ -49,5 +58,7 @@ internal sealed class SendVerificationEmailWhenAccountCreatedHandler(TokenServic
         };
 
         await emailService.SendAsync(emailMessage, stoppingToken);
+
+        return TypedResults.NoContent();
     }
 }

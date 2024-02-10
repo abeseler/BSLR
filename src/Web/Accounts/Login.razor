@@ -30,7 +30,7 @@
 
                             <div class="form-outline mb-4">
                                 <label class="form-label" for="Input_Email">Email</label>
-                                <InputText tabindex="1" type="email" id="Input_Email" class="form-control form-control-lg" @ref="_emailInput" @bind-Value="_model.Email" />
+                                <InputText tabindex="1" type="email" id="Input_Email" class="form-control form-control-lg" @ref="_firstInput" @bind-Value="_model.Email" />
                                 <ValidationMessage For="@(() => _model.Email)" />
                             </div>
 
@@ -60,7 +60,8 @@
                                 </div>
                             }                            
 
-                            <p class="text-center text-muted mt-5">Don't have an account? <a href="@Routes.Register" class="link fw-bold"><u>Create new account</u></a></p>
+                            <p class="text-center text-muted mt-4">Don't have an account?<br /><a href="@Routes.Register" class="link fw-bold"><u>Sign up here!</u></a></p>
+                            <p class="text-center text-muted mt-2"><a href="@Routes.ForgotPassword" class="link fw-bold"><u>Forgot Password?</u></a></p>
                         </EditForm>
                     </div>
                 </div>
@@ -73,11 +74,10 @@
     [SupplyParameterFromForm]
     private FormModel _model { get; set; } = new();
     private EditContext? _context;
-    private InputText _emailInput = default!;
+    private InputText _firstInput = default!;
+    private bool _isProcessing;
     private string? _errorMessage;
     private DateTime? _showErrorUntil;
-
-    private bool _isProcessing = false;
 
     private class FormModel
     {
@@ -101,8 +101,8 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && _emailInput?.Element is not null)
-            await _emailInput.Element.Value.FocusAsync();
+        if (firstRender && _firstInput?.Element is not null)
+            await _firstInput.Element.Value.FocusAsync();
     }
 
     private void Reset()
