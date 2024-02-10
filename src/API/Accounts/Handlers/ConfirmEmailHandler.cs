@@ -16,6 +16,7 @@ internal static class ConfirmEmailHandler
         ConfirmEmailRequest request,
         IAccountRepository repository,
         TokenService tokenService,
+        TokenRepository tokenRepository,
         CookieService cookieService,
         CancellationToken stoppingToken)
     {
@@ -35,12 +36,13 @@ internal static class ConfirmEmailHandler
 
         account.Verify();
 
+        var (_, accessToken, expiresOn) = tokenService.GenerateAccessToken(account);
+        var (refreshTokenId, refreshToken, refreshExpiresOn) = tokenService.GenerateRefreshToken(account);
+
         using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
         var saveResult = await repository.SaveChangesAsync(account, stoppingToken);
+        await tokenRepository.SaveAsync(TokenLog.Create(refreshTokenId, refreshExpiresOn, account), stoppingToken);
         scope.Complete();
-
-        var (_, expiresOn, accessToken) = tokenService.GenerateAccessToken(account);
-        var (_, refreshExpiresOn, refreshToken) = tokenService.GenerateRefreshToken(account);
 
         cookieService.Set(CookieKeys.RefreshToken, refreshToken, refreshExpiresOn);
         var response = new AccessTokenResponse(accessToken, expiresOn);

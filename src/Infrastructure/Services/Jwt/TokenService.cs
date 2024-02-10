@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
-using Token = (System.Guid Id, System.DateTime ExpiresOn, string Token);
+using TokenResult = (System.Guid Id, string Token, System.DateTime ExpiresOn);
 
 namespace Beseler.Infrastructure.Services.Jwt;
 
@@ -50,39 +50,37 @@ public sealed class TokenService
         return new ClaimsPrincipal(result.ClaimsIdentity);
     }
 
-    public Token GenerateAccessToken(Account account)
+    public TokenResult GenerateAccessToken(Account account)
     {
         var tokenId = Guid.NewGuid();
         var expiresOn = DateTime.UtcNow.AddMinutes(_options.AccessTokenLifetimeMinutes);
         var claims = GetDefaultClaims(account, tokenId);
         var token = WriteToken(claims, expiresOn);
 
-        return (tokenId, expiresOn, token);
+        return (tokenId, token, expiresOn);
     }
 
-    public Token GenerateRefreshToken(Account account)
+    public TokenResult GenerateRefreshToken(Account account)
     {
         var tokenId = Guid.NewGuid();
         var expiresOn = DateTime.UtcNow.AddHours(_options.RefreshTokenLifetimeHours);
         var claims = GetDefaultClaims(account, tokenId);
         var token = WriteToken(claims, expiresOn);
 
-        return (tokenId, expiresOn, token);
+        return (tokenId, token, expiresOn);
     }
 
-    public Token GenerateToken(Account account, TimeSpan lifetime, Dictionary<string, string>? additionalClaims = null)
+    public TokenResult GenerateToken(Account account, TimeSpan lifetime, IEnumerable<Claim>? additionalClaims = null)
     {
         var tokenId = Guid.NewGuid();
         var expiresOn = DateTime.UtcNow.Add(lifetime);
         var claims = GetDefaultClaims(account, tokenId);
 
-        foreach (var (key, value) in additionalClaims ?? [])
-        {
-            claims.Add(new(key, value));
-        }
+        if (additionalClaims is not null)
+            claims.AddRange(additionalClaims);
 
         var token = WriteToken(claims, expiresOn);
-        return (tokenId, expiresOn, token);
+        return (tokenId, token, expiresOn);
     }
 
     private string WriteToken(List<Claim> claims, DateTime expiresOn)

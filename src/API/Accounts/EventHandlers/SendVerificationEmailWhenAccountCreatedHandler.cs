@@ -4,7 +4,7 @@ using Beseler.Infrastructure.Services;
 using Beseler.Infrastructure.Services.Jwt;
 using Beseler.Shared.Accounts;
 
-namespace Beseler.API.Accounts.EventConsumers;
+namespace Beseler.API.Accounts.EventHandlers;
 
 internal sealed class SendVerificationEmailWhenAccountCreatedHandler(TokenService tokenService, IAccountRepository repository, IEmailService emailService) : IDomainEventHandler
 {
@@ -16,12 +16,7 @@ internal sealed class SendVerificationEmailWhenAccountCreatedHandler(TokenServic
         var account = await repository.GetByEmailAsync(email, stoppingToken)
             ?? throw new InvalidOperationException($"Account not found: {email}");
 
-        var claims = new Dictionary<string, string>
-        {
-            { PrivateClaims.ConfirmEmail(tokenService.Audience), "" }
-        };
-
-        var token = tokenService.GenerateToken(account, TimeSpan.FromHours(1), claims);
+        var token = tokenService.GenerateToken(account, TimeSpan.FromHours(1), [new(PrivateClaims.ConfirmEmail(tokenService.Audience), account.Email)]);
 
         var emailMessage = new EmailMessage
         {

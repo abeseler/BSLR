@@ -27,6 +27,20 @@ public sealed class TokenRepository(IDatabaseConnector connector)
             await connection.ExecuteAsync(UpdateQuery, parameters);
     }
 
+    public async Task RevokeTokensForAccount(int accountId, CancellationToken stoppingToken = default)
+    {
+        var parameters = new DynamicParameters();
+        parameters.Add("AccountId", accountId);
+        using var connection = await connector.ConnectAsync(stoppingToken);
+        await connection.ExecuteAsync("""
+            UPDATE dbo.TokenLog
+            SET IsRevoked = 1
+            WHERE AccountId = @AccountId
+                AND IsRevoked = 0
+                AND ExpiresOn > GETUTCDATE();
+            """, parameters);
+    }
+
     public async Task RevokeChainAsync(Guid tokenId, CancellationToken stoppingToken = default)
     {
         var parameters = new DynamicParameters();
@@ -55,7 +69,7 @@ public sealed class TokenRepository(IDatabaseConnector connector)
             	INNER JOIN TokenDescendants td
             		ON td.ReplacedByTokenId = tl.TokenId
             	WHERE IsRevoked = 0
-            		AND ExpiresOn > GETDATE()
+            		AND ExpiresOn > GETUTCDATE()
             ),
             TokenAncestors AS (
             	SELECT
@@ -74,7 +88,7 @@ public sealed class TokenRepository(IDatabaseConnector connector)
             	INNER JOIN TokenAncestors ta
             		ON ta.TokenId = tl.ReplacedByTokenId
             	WHERE IsRevoked = 0
-            		AND ExpiresOn > GETDATE()
+            		AND ExpiresOn > GETUTCDATE()
             )
             INSERT INTO @Tokens (TokenLogId)
             SELECT ta.TokenLogId FROM TokenAncestors ta

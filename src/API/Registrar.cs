@@ -1,4 +1,4 @@
-﻿using Beseler.API.Accounts.EventConsumers;
+﻿using Beseler.API.Accounts.EventHandlers;
 using Beseler.API.Application;
 using Beseler.API.Application.Services;
 using Beseler.API.Swagger;

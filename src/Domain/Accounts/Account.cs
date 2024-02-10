@@ -59,4 +59,11 @@ public sealed class Account : Aggregate
         IsLocked = true;
         AddDomainEvent(new AccountLockedDomainEvent(Email, "Too many failed login attempts."));
     }
+
+    public void ResetPassword(string secretHash)
+    {
+        HasUnsavedChange();
+        SecretHash = secretHash;
+        FailedLoginAttempts = 0;
+    }
 }

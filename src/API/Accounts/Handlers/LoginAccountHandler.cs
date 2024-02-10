@@ -41,8 +41,8 @@ internal static class LoginAccountHandler
 
         account.Login();
 
-        var (_, expiresOn, accessToken) = tokenService.GenerateAccessToken(account);
-        var (refreshTokenId, refreshExpiresOn, refreshToken) = tokenService.GenerateRefreshToken(account);
+        var (_, accessToken, expiresOn) = tokenService.GenerateAccessToken(account);
+        var (refreshTokenId, refreshToken, refreshExpiresOn) = tokenService.GenerateRefreshToken(account);
 
         using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
         await tokenRepository.SaveAsync(TokenLog.Create(refreshTokenId, refreshExpiresOn, account), stoppingToken);

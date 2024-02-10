@@ -18,9 +18,7 @@ internal static class RegisterAccountHandler
         CancellationToken stoppingToken)
     {
         if (await validator.ValidateAsync(request, stoppingToken) is { IsValid: false } validationResult)
-        {
             return TypedResults.ValidationProblem(validationResult.ToDictionary());
-        }
 
         var passwordHash = passwordHasher.HashPassword(default!, request.Password);
         var account = Account.Create(request.Email, request.GivenName, request.FamilyName, passwordHash);

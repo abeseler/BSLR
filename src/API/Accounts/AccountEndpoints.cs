@@ -32,6 +32,14 @@ internal static class AccountEndpoints
             .Produces(200)
             .Produces(400);
 
+        group.MapGet(Endpoints.Accounts.ResetPassword, ForgotPasswordHandler.HandleAsync)
+            .Produces(204)
+            .Produces(404);
+
+        group.MapPost(Endpoints.Accounts.ResetPassword, ResetPasswordHandler.HandleAsync)
+            .Produces(204)
+            .Produces(400);
+
         return app;
     }
 }

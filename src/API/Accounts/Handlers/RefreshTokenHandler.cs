@@ -5,6 +5,7 @@ using Beseler.Shared.Accounts.Requests;
 using Beseler.Shared.Accounts.Responses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.JsonWebTokens;
+using System.Security.Claims;
 
 namespace Beseler.API.Accounts.Handlers;
 
@@ -30,7 +31,7 @@ internal static class RefreshTokenHandler
             return TypedResults.Unauthorized();
         }
 
-        if (Guid.TryParse(principal.FindFirst(JwtRegisteredClaimNames.Jti)?.Value, out var tokenId) is false)
+        if (Guid.TryParse(principal.FindFirstValue(JwtRegisteredClaimNames.Jti), out var tokenId))
             return TypedResults.Unauthorized();
 
         var tokenLog = await tokenRepository.GetByIdAsync(tokenId, stoppingToken);
@@ -51,8 +52,8 @@ internal static class RefreshTokenHandler
             return TypedResults.Forbid();
         }
 
-        var (_, expiresOn, accessToken) = tokenService.GenerateAccessToken(account);
-        var (refreshTokenId, refreshExpiresOn, refreshToken) = tokenService.GenerateRefreshToken(account);
+        var (_, accessToken, expiresOn) = tokenService.GenerateAccessToken(account);
+        var (refreshTokenId, refreshToken, refreshExpiresOn) = tokenService.GenerateRefreshToken(account);
 
         tokenLog.ReplacedBy(refreshTokenId);
         await tokenRepository.SaveAsync(tokenLog, stoppingToken);

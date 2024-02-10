@@ -10,6 +10,7 @@ public static class Endpoints
         public const string Login = $"{BaseRoute}/login";
         public const string Refresh = $"{BaseRoute}/refresh";
         public const string ConfirmEmail = $"{BaseRoute}/confirm-email";
+        public const string ResetPassword = $"{BaseRoute}/reset-password";
         public const string Info = $"{BaseRoute}/info";
     }
 }

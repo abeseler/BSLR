@@ -9,7 +9,7 @@ public static class TaskExt
         {
             await taskOfTasks;
         }
-        catch(Exception)
+        catch (Exception)
         {
             if (taskOfTasks.Exception is not null)
                 throw taskOfTasks.Exception;

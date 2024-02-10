@@ -2,7 +2,7 @@
 using Beseler.Domain.Accounts;
 using Beseler.Infrastructure.Services;
 
-namespace Beseler.API.Accounts.EventConsumers;
+namespace Beseler.API.Accounts.EventHandlers;
 
 internal sealed class SendAccountLockedEmailWhenAccountLockedHandler(IEmailService emailService) : IDomainEventHandler
 {
