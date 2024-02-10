@@ -31,7 +31,7 @@ internal static class RefreshTokenHandler
             return TypedResults.Unauthorized();
         }
 
-        if (Guid.TryParse(principal.FindFirstValue(JwtRegisteredClaimNames.Jti), out var tokenId))
+        if (Guid.TryParse(principal.FindFirstValue(JwtRegisteredClaimNames.Jti), out var tokenId) is false)
             return TypedResults.Unauthorized();
 
         var tokenLog = await tokenRepository.GetByIdAsync(tokenId, stoppingToken);
