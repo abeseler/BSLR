@@ -1,5 +1,6 @@
 using Beseler.Shared;
 using Beseler.Web.Accounts.Services;
+using Beseler.Web.Application.Services;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -16,6 +17,7 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+builder.Services.AddScoped<ApiClient>();
 
 builder.Services.AddScoped<AuthStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(p => p.GetRequiredService<AuthStateProvider>());

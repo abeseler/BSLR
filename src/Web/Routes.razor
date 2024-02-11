@@ -5,8 +5,7 @@
     <Found Context="routeData">
         <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
             <NotAuthorized>
-                <p>Sorry, you're not authorized to view this page.</p>
-                @* <Redirect Route="@Login" /> *@
+                <Redirect Route="@Login" />
             </NotAuthorized>
             <Authorizing>
                 <p>Authorizing...</p>
