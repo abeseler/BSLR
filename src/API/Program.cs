@@ -18,7 +18,7 @@ if (app.Environment.IsDevelopment())
 else
     app.UseHsts();
 
-//app.UseStatusCodeMiddleware();
+app.UseStatusCodeMiddleware();
 app.UseStaticFiles();
 app.UseExceptionHandler(app =>
     app.Run(async context => await TypedResults.Problem().ExecuteAsync(context)));
