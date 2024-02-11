@@ -1,6 +1,4 @@
 ﻿using Beseler.API.Accounts.EventHandlers;
-using Beseler.API.Application;
-using Beseler.API.Application.Services;
 using Beseler.API.Swagger;
 using Beseler.Domain.Accounts;
 using Beseler.Domain.Common;

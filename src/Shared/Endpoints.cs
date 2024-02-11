@@ -11,6 +11,13 @@ public static class Endpoints
         public const string Refresh = $"{BaseRoute}/refresh";
         public const string ConfirmEmail = $"{BaseRoute}/confirm-email";
         public const string ResetPassword = $"{BaseRoute}/reset-password";
-        public const string Info = $"{BaseRoute}/info";
+    }
+
+    public static class Budgeting
+    {
+        private const string BaseRoute = "/api/budgets";
+
+        public const string Budget = $"{BaseRoute}";
+        public const string Transactions = $"{BaseRoute}/transactions";
     }
 }

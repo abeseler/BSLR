@@ -1,5 +1,4 @@
 ﻿using Asp.Versioning.Builder;
-using Beseler.Shared;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Beseler.API.Application;

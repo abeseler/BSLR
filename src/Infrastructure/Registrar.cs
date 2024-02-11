@@ -1,15 +1,11 @@
-﻿using Beseler.Domain.Accounts;
-using Beseler.Infrastructure.Data;
+﻿using Beseler.Infrastructure.Data;
 using Beseler.Infrastructure.Data.Repositories;
 using Beseler.Infrastructure.Services;
 using Beseler.Infrastructure.Services.Jwt;
 using Beseler.Infrastructure.Services.SendGrid;
-using Beseler.Shared;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using SendGrid.Extensions.DependencyInjection;
 
@@ -58,6 +54,7 @@ public static class Registrar
             .AddSingleton<OutboxRepository>()
             .AddScoped<TokenRepository>()
             .AddScoped<IAccountRepository, AccountRepository>()
+            .AddScoped<IBudgetRepository, BudgetRepository>()
             .AddSingleton<TokenService>()
             .AddScoped<IEmailService, SendGridEmailService>();
 

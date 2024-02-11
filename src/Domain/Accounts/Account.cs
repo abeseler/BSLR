@@ -1,6 +1,4 @@
-﻿using Beseler.Domain.Common;
-
-namespace Beseler.Domain.Accounts;
+﻿namespace Beseler.Domain.Accounts;
 
 public sealed class Account : Aggregate
 {

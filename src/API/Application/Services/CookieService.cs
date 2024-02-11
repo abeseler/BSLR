@@ -1,6 +1,4 @@
-﻿using Beseler.Shared;
-
-namespace Beseler.API.Application.Services;
+﻿namespace Beseler.API.Application.Services;
 
 internal sealed class CookieService(IHttpContextAccessor accessor)
 {

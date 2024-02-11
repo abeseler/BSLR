@@ -36,6 +36,11 @@
                 <li class="nav-item">
                     <NavLink class="nav-link" href="@Routes.Home" Match="NavLinkMatch.All">Home</NavLink>
                 </li>
+                <AuthorizeView Policy="@Policies.EmailVerified">
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="@Routes.Budget">Budget</NavLink>
+                    </li>
+                </AuthorizeView>
                 <li class="nav-item">
                     <NavLink class="nav-link" href="fetch-data">Weather</NavLink>
                 </li>

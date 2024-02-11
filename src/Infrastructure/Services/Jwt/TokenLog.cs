@@ -1,6 +1,4 @@
-﻿using Beseler.Domain.Accounts;
-
-namespace Beseler.Infrastructure.Services.Jwt;
+﻿namespace Beseler.Infrastructure.Services.Jwt;
 
 public sealed record TokenLog
 {

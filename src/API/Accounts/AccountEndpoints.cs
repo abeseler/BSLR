@@ -1,6 +1,5 @@
 ﻿using Asp.Versioning.Builder;
 using Beseler.API.Accounts.Handlers;
-using Beseler.Shared;
 using Beseler.Shared.Accounts.Responses;
 
 namespace Beseler.API.Accounts;

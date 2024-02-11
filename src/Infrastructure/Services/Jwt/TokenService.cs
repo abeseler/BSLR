@@ -1,7 +1,5 @@
-﻿using Beseler.Domain.Accounts;
-using Beseler.Shared.Accounts;
+﻿using Beseler.Shared.Accounts;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using TokenResult = (System.Guid Id, string Token, System.DateTime ExpiresOn);

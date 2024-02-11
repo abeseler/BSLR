@@ -1,7 +1,5 @@
-﻿using Beseler.API.Application.Services;
-using Beseler.Domain.Accounts;
+﻿using Beseler.Domain.Accounts;
 using Beseler.Infrastructure.Services.Jwt;
-using Beseler.Shared.Accounts;
 using Beseler.Shared.Accounts.Requests;
 using Beseler.Shared.Accounts.Responses;
 using Microsoft.AspNetCore.Authorization;

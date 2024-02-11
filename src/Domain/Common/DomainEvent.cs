@@ -1,5 +1,4 @@
-﻿using Beseler.Domain.Accounts;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Beseler.Domain.Common;
 

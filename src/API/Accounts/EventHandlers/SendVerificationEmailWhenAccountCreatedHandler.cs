@@ -1,8 +1,6 @@
-﻿using Beseler.API.Application;
-using Beseler.Domain.Accounts;
+﻿using Beseler.Domain.Accounts;
 using Beseler.Infrastructure.Services;
 using Beseler.Infrastructure.Services.Jwt;
-using Beseler.Shared.Accounts;
 
 namespace Beseler.API.Accounts.EventHandlers;
 

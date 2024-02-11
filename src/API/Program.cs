@@ -1,8 +1,7 @@
 using Asp.Versioning;
 using Beseler.API;
 using Beseler.API.Accounts;
-using Beseler.API.Application;
-using Beseler.API.Application.Services;
+using Beseler.API.Budgeting;
 using Beseler.API.Swagger;
 using Beseler.Domain;
 using Beseler.Infrastructure;
@@ -37,6 +36,7 @@ var versions = app.NewApiVersionSet()
 
 app.MapApplicationEndpoints(versions)
     .MapAccountEndpoints(versions)
+    .MapBudgetingEndpoints(versions)
     .MapWeatherEndpoints(versions)
     .MapSwaggerUI();
 

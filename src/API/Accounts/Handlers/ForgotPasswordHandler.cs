@@ -1,7 +1,6 @@
 ﻿using Beseler.Domain.Accounts;
 using Beseler.Infrastructure.Services;
 using Beseler.Infrastructure.Services.Jwt;
-using Beseler.Shared.Accounts;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Beseler.API.Accounts.Handlers;

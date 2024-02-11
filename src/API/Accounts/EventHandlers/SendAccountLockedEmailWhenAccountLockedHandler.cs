@@ -1,5 +1,4 @@
-﻿using Beseler.API.Application;
-using Beseler.Domain.Accounts;
+﻿using Beseler.Domain.Accounts;
 using Beseler.Infrastructure.Services;
 
 namespace Beseler.API.Accounts.EventHandlers;

@@ -1,5 +1,4 @@
-﻿using Beseler.Domain.Accounts;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 
 namespace Beseler.Infrastructure.Data.Mappers;
 

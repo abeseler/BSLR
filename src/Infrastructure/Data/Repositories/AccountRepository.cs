@@ -1,5 +1,4 @@
-﻿using Beseler.Domain.Accounts;
-using Beseler.Domain.Common;
+﻿using Beseler.Domain.Common;
 using Beseler.Infrastructure.Data.Mappers;
 using Dapper;
 

@@ -1,5 +1,4 @@
-﻿using Beseler.API.Application.Services;
-using Beseler.Infrastructure.Services.Jwt;
+﻿using Beseler.Infrastructure.Services.Jwt;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.JsonWebTokens;
 using System.Security.Claims;
