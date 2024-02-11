@@ -9,11 +9,11 @@
     <link href="css/app.css" rel="stylesheet" />
     <link rel="icon" type="image/png" href="favicon.png" />
     <link href="Web.styles.css" rel="stylesheet" />
-    <HeadOutlet @rendermode="new InteractiveAutoRenderMode(prerender: false)" />
+    <HeadOutlet @rendermode="new InteractiveWebAssemblyRenderMode(prerender: false)" />
 </head>
 
 <body>
-    <Routes @rendermode="new InteractiveAutoRenderMode(prerender: false)" />
+    <Routes @rendermode="new InteractiveWebAssemblyRenderMode(prerender: false)" />
 
     <div id="blazor-error-ui">
         An unhandled error has occurred.

@@ -42,7 +42,6 @@ public static class Registrar
         builder.Services
             .AddHostedService<OutboxMonitorService>()
             .AddRazorComponents()
-            .AddInteractiveServerComponents()
             .AddInteractiveWebAssemblyComponents();
 
         return builder;

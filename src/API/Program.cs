@@ -41,7 +41,6 @@ app.MapApplicationEndpoints(versions)
     .MapSwaggerUI();
 
 app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode()
     .AddInteractiveWebAssemblyRenderMode()
     .AddAdditionalAssemblies(typeof(Beseler.Web._Imports).Assembly);
 
