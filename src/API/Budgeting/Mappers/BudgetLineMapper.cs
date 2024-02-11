@@ -6,7 +6,7 @@ internal static class BudgetLineMapper
 {
     public static BudgetLineDto ToDto(this BudgetLine model)
     {
-        return new(model.BudgetLineId, model.Type.ToString(), model.Description, model.Date, model.Amount);
+        return new(model.BudgetLineId, model.LineType.ToString(), model.Description, model.TransactionDate, model.Amount);
     }
 
     public static IEnumerable<BudgetLineDto> ToDtos(this IEnumerable<BudgetLine> models)

@@ -3,6 +3,7 @@ using Beseler.Infrastructure.Data.Repositories;
 using Beseler.Infrastructure.Services;
 using Beseler.Infrastructure.Services.Jwt;
 using Beseler.Infrastructure.Services.SendGrid;
+using Dapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -57,6 +58,8 @@ public static class Registrar
             .AddScoped<IBudgetRepository, BudgetRepository>()
             .AddSingleton<TokenService>()
             .AddScoped<IEmailService, SendGridEmailService>();
+
+        SqlMapper.AddTypeHandler(new SqlDateOnlyTypeHandler());
 
         builder.Services.AddSendGrid(options =>
         {

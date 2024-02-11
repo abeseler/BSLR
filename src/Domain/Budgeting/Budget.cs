@@ -8,13 +8,14 @@ public sealed class Budget : Aggregate
     public decimal StartingBalance { get; private set; }
     public decimal EndingBalance { get; private set; }
     public DateTime CreatedOn { get; private set; }
-    public DateTime LastModifiedOn { get; private set; }
+    public DateTime? LastModifiedOn { get; private set; }
 
     public string Title => $"{Start:MMMM} Budget {Start.Year}";
 
-    public IEnumerable<BudgetLine> Income => _lines.Where(l => l.Type is BudgetLineType.Income);
-    public IEnumerable<BudgetLine> Expenses => _lines.Where(l => l.Type is BudgetLineType.Expense);
-    public IEnumerable<BudgetLine> Savings => _lines.Where(l => l.Type is BudgetLineType.Savings);
+    public IReadOnlyCollection<BudgetLine> Lines => _lines;
+    public IEnumerable<BudgetLine> Income => _lines.Where(l => l.LineType is BudgetLineType.Income);
+    public IEnumerable<BudgetLine> Expenses => _lines.Where(l => l.LineType is BudgetLineType.Expense);
+    public IEnumerable<BudgetLine> Savings => _lines.Where(l => l.LineType is BudgetLineType.Savings);
 
     public static Budget Create(int accountId, int year, int month)
     {
@@ -42,13 +43,14 @@ public sealed class Budget : Aggregate
         {
             AccountId = AccountId,
             BudgetLineId = id,
-            Type = type,
-            Date = date,
+            LineType = type,
+            TransactionDate = date,
             Description = description,
             Amount = amount,
             CreatedOn = DateTime.UtcNow
         });
 
+        HasUnsavedChange();
         return Success.Default;
     }
 
@@ -61,18 +63,22 @@ public sealed class Budget : Aggregate
         if (Start.Year != date.Year || Start.Month != date.Month)
             return new Error("Line date does not match budget month.");
 
-        if (IsInvalidAmount(line.Type, amount, out var amountError))
+        if (IsInvalidAmount(line.LineType, amount, out var amountError))
             return amountError!;
 
         EndingBalance += amount - line.Amount;
-        line = line with
+        var newLine = line with
         {
-            Date = date,
+            TransactionDate = date,
             Description = description,
             Amount = amount,
             LastModifiedOn = DateTime.UtcNow
         };
 
+        _lines.Remove(line);
+        _lines.Add(newLine);
+
+        HasUnsavedChange();
         return Success.Default;
     }
 
@@ -85,6 +91,7 @@ public sealed class Budget : Aggregate
         EndingBalance -= line.Amount;
         _lines.Remove(line);
 
+        HasUnsavedChange();
         return Success.Default;
     }
 
