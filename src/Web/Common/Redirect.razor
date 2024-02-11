@@ -1,8 +1,0 @@
-﻿@inject NavigationManager _navigation
-
-@code {
-    [Parameter]
-    [EditorRequired]
-    public required string Route { get; set; }
-    protected override void OnInitialized() => _navigation.NavigateTo(Route);
-}
