@@ -20,13 +20,7 @@
 
                             <h2 class="text-uppercase text-center mb-5">Account Login</h2>
                             
-                            @if (_errorMessage is not null)
-                            {
-                                <div class="alert alert-danger fw-bold shadow-lg" @onclick="() => {
-                                    _errorMessage = null;
-                                    _showErrorUntil = null;
-                                }">@_errorMessage</div>
-                            }                            
+                            <TimedAlert Message="@_errorMessage" ShowUntil="@_showErrorUntil" />                         
 
                             <div class="form-outline mb-4">
                                 <label class="form-label" for="Input_Email">Email</label>
@@ -74,7 +68,7 @@
     [SupplyParameterFromForm]
     private FormModel _model { get; set; } = new();
     private EditContext? _context;
-    private InputText _firstInput = default!;
+    private InputText? _firstInput;
     private bool _isProcessing;
     private string? _errorMessage;
     private DateTime? _showErrorUntil;
@@ -130,6 +124,7 @@
                     HttpStatusCode.Forbidden => "Account is locked!",
                     _ => "Oops! Something went wrong..."
                 };
+                _showErrorUntil = DateTime.UtcNow.AddSeconds(8);
                 return;
             }
 
@@ -138,6 +133,7 @@
             {
                 Log.Error("Login failed: {@Response}", response.Content);
                 _errorMessage = "Oops! Something went wrong...";
+                _showErrorUntil = DateTime.UtcNow.AddSeconds(8);
                 return;
             }
 
@@ -146,7 +142,7 @@
         }
         finally
         {
-            if (_model.RememberMe)
+            if (_model.RememberMe && _model.Email is not null)
             {
                 await _localStorage.SetItemAsStringAsync(StorageKeys.Email, _model.Email);
                 await _localStorage.SetItemAsStringAsync(StorageKeys.RememberMe, _model.RememberMe.ToString());
@@ -156,25 +152,7 @@
                 await _localStorage.RemoveItemAsync(StorageKeys.Email);
                 await _localStorage.RemoveItemAsync(StorageKeys.RememberMe);
             }
-
             _isProcessing = false;
-            StateHasChanged();
-            if (_errorMessage is not null)
-            {
-                _showErrorUntil = DateTime.UtcNow.AddSeconds(8);
-                var started = _showErrorUntil;
-                while (started == _showErrorUntil && DateTime.UtcNow < _showErrorUntil)
-                {
-                    await Task.Delay(1000);
-                }
-
-                if (started == _showErrorUntil)
-                {
-                    Log.Information("Resetting error message...");
-                    _showErrorUntil = null;
-                    _errorMessage = null;
-                }
-            }
         }
     }
 }

@@ -77,7 +77,7 @@
     [SupplyParameterFromForm]
     private FormModel _model { get; set; } = new();
     private EditContext? _context;
-    private InputText _firstInput = default!;
+    private InputText? _firstInput;
 
     private bool _isProcessing = false;
 
