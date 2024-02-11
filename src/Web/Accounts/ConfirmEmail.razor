@@ -19,7 +19,7 @@
         }
         else if (_confirmationFailed)
         {
-            <p class="p-3">We're sorry, but we couldn't confirm your email. Please try again later.</p>
+            <p class="p-3">We've sent an email for you to verify your account and complete setup.</p>
         }
         else
         {
@@ -37,7 +37,10 @@
     protected override async Task OnInitializedAsync()
     {
         if (ConfirmationToken is null)
+        {
+            await _http.GetAsync(Endpoints.Accounts.ConfirmEmail);
             return;
+        }        
 
         var response = await _http.PostAsJsonAsync(Endpoints.Accounts.ConfirmEmail, new ConfirmEmailRequest(ConfirmationToken));
         if (response.IsSuccessStatusCode is false)
