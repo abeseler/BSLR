@@ -1,4 +1,5 @@
 ﻿@using Beseler.Web.Accounts
+@inject AuthStateProvider _authStateProvider
 
 <Router AppAssembly="@typeof(Program).Assembly">
     <Found Context="routeData">
@@ -28,4 +29,9 @@
     public const string ResetPassword = "/account/reset-password";
     public const string ForgotPassword = "/account/forgot-password";
     public const string Profile = "/account/profile";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await _authStateProvider.GetAuthenticationStateAsync();
+    }
 }

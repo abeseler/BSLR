@@ -1,5 +1,4 @@
 ﻿@inherits LayoutComponentBase
-@inject AuthStateProvider _authStateProvider
 
 <div class="min-vh-100">
     <TopMenu />
@@ -10,10 +9,3 @@
         </main>
     </div>    
 </div>
-
-@code {
-    protected override async Task OnInitializedAsync()
-    {
-        await _authStateProvider.GetAuthenticationStateAsync();
-    }
-}
