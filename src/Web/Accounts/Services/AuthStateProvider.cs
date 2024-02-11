@@ -17,35 +17,35 @@ internal sealed class AuthStateProvider(HttpClient http) : AuthenticationStatePr
     public string? Token { get; private set; }
     public bool IsExpired => _expiresOn is not null && _expiresOn.Value < DateTimeOffset.UtcNow;
 
-    public override async Task<AuthenticationState> GetAuthenticationStateAsync()
+    public override Task<AuthenticationState> GetAuthenticationStateAsync()
     {
-        if (_isFirstRun)
-        {
-            _isFirstRun = false;
+        //if (_isFirstRun)
+        //{
+        //    _isFirstRun = false;
 
-            var response = await http.PostAsync(Endpoints.Accounts.Refresh, null);
-            if (response.IsSuccessStatusCode is false)
-                return _state;
+        //    var response = await http.PostAsync(Endpoints.Accounts.Refresh, null);
+        //    if (response.IsSuccessStatusCode is false)
+        //        return _state;
 
-            var tokenData = await response.Content.ReadFromJsonAsync<AccessTokenResponse>();
-            if (tokenData is null)
-                return _state;
+        //    var tokenData = await response.Content.ReadFromJsonAsync<AccessTokenResponse>();
+        //    if (tokenData is null)
+        //        return _state;
 
-            var principal = ParseToken(tokenData.AccessToken);
-            if (principal is null)
-                return _state;
+        //    var principal = ParseToken(tokenData.AccessToken);
+        //    if (principal is null)
+        //        return _state;
 
-            Token = tokenData.AccessToken;
-            _expiresOn = tokenData.ExpiresOn;
-            _state = new AuthenticationState(principal);
+        //    Token = tokenData.AccessToken;
+        //    _expiresOn = tokenData.ExpiresOn;
+        //    _state = new AuthenticationState(principal);
 
-            if (_state.User.Identity?.IsAuthenticated ?? false)
-                http.DefaultRequestHeaders.Authorization = new("Bearer", Token);
-            else
-                http.DefaultRequestHeaders.Authorization = null;
-        }
+        //    if (_state.User.Identity?.IsAuthenticated ?? false)
+        //        http.DefaultRequestHeaders.Authorization = new("Bearer", Token);
+        //    else
+        //        http.DefaultRequestHeaders.Authorization = null;
+        //}
 
-        return _state;
+        return Task.FromResult(_state);
     }
 
     public void NotifyUserAuthentication(string? token = null, DateTimeOffset? expiresOn = null)
