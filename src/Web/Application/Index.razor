@@ -4,7 +4,7 @@
 <PageTitle>BSLR: Home</PageTitle>
 
 <section class="container-fluid">
-    <AuthorizeView Policy="@Policies.EmailVerified">
+@*     <AuthorizeView Policy="@Policies.EmailVerified">
         <NotAuthorized>
             @if (context.User.Identity?.IsAuthenticated ?? false)
             {
@@ -15,7 +15,7 @@
             }            
         </NotAuthorized>
     </AuthorizeView>
-
+ *@
     <h1>Welcome!</h1>
     <p>This app is a sandbox for testing and building prototypes for ASPNET and Blazor.</p>
     <p>It is a work in progress and will be updated as I learn more about Blazor and ASPNET.</p>
