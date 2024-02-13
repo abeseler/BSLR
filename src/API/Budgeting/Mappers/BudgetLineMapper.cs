@@ -9,8 +9,8 @@ internal static class BudgetLineMapper
         return new(model.BudgetLineId, model.LineType.ToString(), model.Description, model.TransactionDate, model.Amount);
     }
 
-    public static IEnumerable<BudgetLineDto> ToDtos(this IEnumerable<BudgetLine> models)
+    public static BudgetLineDto[] ToDtos(this IEnumerable<BudgetLine> models)
     {
-        return models.Select(model => model.ToDto());
+        return models.Select(model => model.ToDto()).ToArray();
     }
 }

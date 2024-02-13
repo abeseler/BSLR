@@ -10,7 +10,11 @@ internal sealed class ApiClient(HttpClient client, AuthStateProvider authState)
     public async Task<TResponse?> GetSecureAsync<TResponse>(string endpoint) where TResponse : class
     {
         if (authState.Token is not null && authState.IsExpired)
-            await RefreshAccessAsync();
+        {
+            var refreshedSuccessfully = await RefreshAccessAsync();
+            if (refreshedSuccessfully is false)
+                return null;
+        }
 
         var response = await client.GetAsync(endpoint);
         if (response.IsSuccessStatusCode is false)
@@ -40,11 +44,9 @@ internal sealed class ApiClient(HttpClient client, AuthStateProvider authState)
             return false;
 
         var token = await response.Content.ReadFromJsonAsync<AccessTokenResponse>();
-        if (token is null)
-            return false;
 
-        authState.NotifyUserAuthentication(token.AccessToken, token.ExpiresOn);
+        authState.NotifyUserAuthentication(token?.AccessToken, token?.ExpiresOn);
 
-        return true;
+        return token is not null;
     }
 }

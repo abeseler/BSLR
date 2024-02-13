@@ -1,8 +1,34 @@
 ﻿@attribute [Route(Routes.Budget)]
 @attribute [Authorize]
+@using Beseler.Shared.Budgeting
+@inject ApiClient _api
 
-<h3>Budget</h3>
+<h2>Budget</h2>
+
+<div class="card-group">
+    <TransactionGrid Name="Income" IsLoaded="@_isLoaded" Transactions="@_income" />
+    <TransactionGrid Name="Expenses" IsLoaded="@_isLoaded" Transactions="@_expenses" />
+    <TransactionGrid Name="Savings" IsLoaded="@_isLoaded" Transactions="@_savings" />
+</div>
 
 @code {
+    private bool _isLoaded;
+    private BudgetResponse? _budget;
+    private List<BudgetLineDto> _income = [];
+    private List<BudgetLineDto> _expenses = [];
+    private List<BudgetLineDto> _savings = [];
 
+    protected override async Task OnInitializedAsync()
+    {
+        var url = $"{Endpoints.Budgeting.Budget}?year={DateTime.Today.Year}&month={DateTime.Today.Month}";
+        _budget = await _api.GetSecureAsync<BudgetResponse>(url);
+        if (_budget?.Transactions is not null)
+        {
+            _income = _budget.Transactions.TryGetValue("Income", out var income) ? income.ToList() : [];
+            _expenses = _budget.Transactions.TryGetValue("Expenses", out var expenses) ? expenses.ToList() : [];
+            _savings = _budget.Transactions.TryGetValue("Savings", out var savings) ? savings.ToList() : [];
+        }
+
+        _isLoaded = true;
+    }
 }
