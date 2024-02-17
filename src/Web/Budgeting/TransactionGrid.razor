@@ -1,10 +1,10 @@
 ﻿@using Beseler.Shared.Budgeting
 
-<div class="card card">
-    <div class="card-header">
+<div class="card m-1">
+    <div class="card-header @_titleClass">
         <h3 class="card-title">@Name</h3>
     </div>
-    <div class="card-body">
+    <div class="card-body border border-2 @_borderClass">
         <table class="card-body table table-responsive table-secondary">
             <thead>
                 <tr>
@@ -31,9 +31,13 @@
                         </tr>
                     }
                     <tr>
-                        <td><InputNumber class="border-0 d-inline" @bind-Value="_model.Day" /></td>
-                        <td><InputText class="border-0 d-inline" @bind-Value="_model.Description" /></td>
-                        <td><InputNumber class="border-0 d-inline" @bind-Value="_model.Amount" /></td>
+                        <td colspan="3">
+                            <div class="input-group">
+                                <InputNumber class="form-control form-control-sm" @bind-Value="_model.Day" />
+                                <InputText class="form-control" @bind-Value="_model.Description" />
+                                <InputNumber class="form-control" @bind-Value="_model.Amount" />
+                            </div>                            
+                        </td>
                     </tr>
                 }
             </tbody>            
@@ -48,6 +52,22 @@
 
     private EditContext? _context;
     private Model _model = new();
+    private string _titleClass =>
+        Name switch
+        {
+            "Income" => "bg-success",
+            "Expenses" => "bg-danger",
+            "Savings" => "bg-info",
+            _ => ""
+        };
+    private string _borderClass =>
+        Name switch
+        {
+            "Income" => "border-success",
+            "Expenses" => "border-danger",
+            "Savings" => "border-info",
+            _ => ""
+        };
 
     protected override void OnInitialized() => _context = new(_model);
 
