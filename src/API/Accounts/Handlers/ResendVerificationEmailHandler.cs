@@ -24,7 +24,7 @@ internal sealed class ResendVerificationEmailHandler
         if (account.IsVerified)
             return TypedResults.BadRequest("Account email has already been verified.");
 
-        var token = tokenService.GenerateToken(account, TimeSpan.FromHours(1), [new(PrivateClaims.ConfirmEmail(tokenService.Audience), account.Email)]);
+        var token = tokenService.GenerateToken(account, TimeSpan.FromHours(1), [AppClaims.ConfirmEmailClaim(tokenService.Audience, account.Email)]);
 
         var emailMessage = new EmailMessage
         {

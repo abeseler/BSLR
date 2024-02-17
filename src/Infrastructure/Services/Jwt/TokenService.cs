@@ -8,26 +8,22 @@ namespace Beseler.Infrastructure.Services.Jwt;
 
 public sealed class TokenService
 {
-    public const string RefreshTokenCookieKey = "X-Refresh-Token";
-    private readonly SymmetricSecurityKey _symmetricSecurityKey;
     private readonly SigningCredentials _signingCredentials;
     private readonly TokenValidationParameters _validationParameters;
     private readonly JsonWebTokenHandler _handler;
     private readonly JwtOptions _options;
-    public string Issuer => _options.Issuer;
     public string Audience => _options.Audience;
 
     public TokenService(IOptions<JwtOptions> options)
     {
-        var key = Encoding.UTF8.GetBytes(options.Value.Key!);
         _options = options.Value;
         _handler = new();
         _handler.InboundClaimTypeMap.Clear();
-        _symmetricSecurityKey = new(key);
-        _signingCredentials = new(_symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(options.Value.Key!));
+        _signingCredentials = new(key, SecurityAlgorithms.HmacSha256);
         _validationParameters = new()
         {
-            IssuerSigningKey = _symmetricSecurityKey,
+            IssuerSigningKey = key,
             ValidIssuer = options.Value.Issuer,
             ValidAudience = options.Value.Audience,
             ValidateIssuerSigningKey = true,
@@ -53,6 +49,10 @@ public sealed class TokenService
         var tokenId = Guid.NewGuid();
         var expiresOn = DateTime.UtcNow.AddMinutes(_options.AccessTokenLifetimeMinutes);
         var claims = GetDefaultClaims(account, tokenId);
+
+        if (account.IsVerified)
+            claims.Add(AppClaims.EmailVerifiedClaim(account.IsVerified));
+
         var token = WriteToken(claims, expiresOn);
 
         return (tokenId, token, expiresOn);
@@ -97,15 +97,10 @@ public sealed class TokenService
 
     private static List<Claim> GetDefaultClaims(Account account, Guid tokenId)
     {
-        var claims = new List<Claim>
-        {
+        return
+        [
             new(JwtRegisteredClaimNames.Jti, tokenId.ToString()),
             new(JwtRegisteredClaimNames.Sub, account.AccountId.ToString())
-        };
-
-        if (account.IsVerified)
-            claims.Add(new(PrivateClaims.EmailVerified, account.IsVerified.ToString()));
-
-        return claims;
+        ];
     }
 }

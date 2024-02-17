@@ -14,7 +14,7 @@ internal sealed class SendVerificationEmailWhenAccountCreatedHandler(TokenServic
         var account = await repository.GetByEmailAsync(email, stoppingToken)
             ?? throw new InvalidOperationException($"Account not found: {email}");
 
-        var token = tokenService.GenerateToken(account, TimeSpan.FromHours(1), [new(PrivateClaims.ConfirmEmail(tokenService.Audience), account.Email)]);
+        var token = tokenService.GenerateToken(account, TimeSpan.FromMinutes(10), [AppClaims.ConfirmEmailClaim(tokenService.Audience, account.Email)]);
 
         var emailMessage = new EmailMessage
         {

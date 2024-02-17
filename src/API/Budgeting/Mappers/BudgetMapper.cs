@@ -7,6 +7,7 @@ internal static class BudgetMapper
     public static BudgetResponse ToResponse(this Budget model)
     {
         return new(
+            model.Title,
             model.Start.Year,
             model.Start.Month,
             model.StartingBalance,

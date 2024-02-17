@@ -17,7 +17,7 @@ internal static class ForgotPasswordHandler
         if (account.IsLocked)
             return TypedResults.Forbid();
 
-        var (_, token, _) = tokenService.GenerateToken(account, TimeSpan.FromMinutes(5), [new(PrivateClaims.ResetPassword(tokenService.Audience), true.ToString())]);
+        var (_, token, _) = tokenService.GenerateToken(account, TimeSpan.FromMinutes(10), [AppClaims.ResetPasswordClaim(tokenService.Audience)]);
 
         await emailService.SendAsync(new()
         {

@@ -3,7 +3,7 @@
 @using Beseler.Shared.Budgeting
 @inject ApiClient _api
 
-<h2>Budget</h2>
+<h3>@(_budget?.Title ?? "Budget is loading ...")</h3>
 
 <div class="card-group">
     <TransactionGrid Name="Income" IsLoaded="@_isLoaded" Transactions="@_income" />

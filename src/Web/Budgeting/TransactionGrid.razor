@@ -1,47 +1,57 @@
 ﻿@using Beseler.Shared.Budgeting
 
 <div class="card m-1">
-    <div class="card-header @_titleClass">
-        <h3 class="card-title">@Name</h3>
+    <div class="card-header @_headerClass">
+        <h4 class="card-title">@Name</h4>
     </div>
     <div class="card-body border border-2 @_borderClass">
-        <table class="card-body table table-responsive table-secondary">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Description</th>
-                    <th>Amount</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (!IsLoaded)
-                {
-                    <tr>
-                        <td colspan="3">Loading...</td>
-                    </tr>
-                }
-                else
-                {
-                    @foreach (var transaction in Transactions.OrderBy(x => x.TransactionDate))
-                    {
-                        <tr>
-                            <td>@transaction.TransactionDate.Day</td>
-                            <td>@transaction.Description</td>
-                            <td>@transaction.Amount</td>
-                        </tr>
-                    }
-                    <tr>
-                        <td colspan="3">
-                            <div class="input-group">
-                                <InputNumber class="form-control form-control-sm" @bind-Value="_model.Day" />
-                                <InputText class="form-control" @bind-Value="_model.Description" />
-                                <InputNumber class="form-control" @bind-Value="_model.Amount" />
-                            </div>                            
-                        </td>
-                    </tr>
-                }
-            </tbody>            
-        </table>
+        <div class="row">
+            <div class="col-2">
+                <h5>Day</h5>
+            </div>
+            <div class="col-7">
+                <h5>Description</h5>
+            </div>
+            <div class="col-3">
+                <h5>Amount</h5>
+            </div>
+        </div>
+        @if (IsLoaded)
+        {
+            @foreach (var transaction in Transactions.OrderBy(x => x.TransactionDate))
+            {
+                <div class="row">
+                    <div class="col-2 text-center">
+                        <p>@transaction.TransactionDate.Day</p>
+                    </div>
+                    <div class="col-7">
+                        <p>@transaction.Description</p>
+                    </div>
+                    <div class="col-3">
+                        <p>@transaction.Amount</p>
+                    </div>
+                </div>
+            }
+            <div class="row">
+                <div class="col-2">
+                    <InputNumber class="form-control" @bind-Value="_model.Day" />
+                </div>
+                <div class="col-7">
+                    <InputText class="form-control" @bind-Value="_model.Description" />
+                </div>
+                <div class="col-3">
+                    <InputNumber class="form-control" @bind-Value="_model.Amount" />
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="row">
+                <div class="col-12">
+                    <p>Loading...</p>
+                </div>
+            </div>
+        }
     </div>
 </div>
 
@@ -52,7 +62,7 @@
 
     private EditContext? _context;
     private Model _model = new();
-    private string _titleClass =>
+    private string _headerClass =>
         Name switch
         {
             "Income" => "bg-success",

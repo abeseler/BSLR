@@ -10,7 +10,7 @@ public static class Policies
     private static AuthorizationPolicy EmailVerifiedPolicy =>
         new AuthorizationPolicyBuilder()
             .RequireAuthenticatedUser()
-            .RequireClaim(PrivateClaims.EmailVerified)
+            .RequireClaim(AppClaims.EmailVerified)
             .Build();
 
     public static Action<AuthorizationOptions> AuthorizationOptions =>

@@ -23,7 +23,7 @@ internal static class ConfirmEmailHandler
         if (int.TryParse(principal?.Identity?.Name, out var accountId) is false)
             return TypedResults.Unauthorized();
 
-        if (principal.HasClaim(PrivateClaims.ConfirmEmail(tokenService.Audience)) is false)
+        if (principal.HasClaim(AppClaims.ConfirmEmail(tokenService.Audience)) is false)
             return TypedResults.Unauthorized();
 
         if (await repository.GetByIdAsync(accountId, stoppingToken) is not { } account)

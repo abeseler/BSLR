@@ -27,6 +27,9 @@ internal static class ResetPasswordHandler
         if (principal?.Identity is not { IsAuthenticated: true, Name: not null } || int.TryParse(principal?.Identity?.Name, out var accountId) is false)
             return TypedResults.Unauthorized();
 
+        if (principal.HasClaim(AppClaims.ResetPassword(tokenService.Audience)) is false)
+            return TypedResults.Forbid();
+
         var account = await accountRepository.GetByIdAsync(accountId, stoppingToken);
         if (account is null)
             return TypedResults.NotFound();
