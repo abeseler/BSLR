@@ -14,6 +14,7 @@ public sealed class Account : Aggregate
     public DateTime CreatedOn { get; private set; }
     public DateTime? LastLoginOn { get; private set; }
     public int FailedLoginAttempts { get; private set; }
+    public byte[] ConcurrencyToken { get; init; } = [];
 
     public static Account Create(string email, string givenName, string familyName, string secretHash)
     {

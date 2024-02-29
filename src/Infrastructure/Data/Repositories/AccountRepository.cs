@@ -94,7 +94,8 @@ internal sealed class AccountRepository(IDatabaseConnector connector, OutboxRepo
                 IsVerified = @IsVerified,
                 LastLoginOn = @LastLoginOn,
                 FailedLoginAttempts = @FailedLoginAttempts
-            WHERE AccountId = @AccountId;
+            WHERE AccountId = @AccountId
+                AND ConcurrencyToken = @ConcurrencyToken;
             """, parameters);
 
         return result == 1 ? account : new Error("Failed to update account.");
