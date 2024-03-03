@@ -34,7 +34,7 @@ internal sealed class AccountRepository(IDatabaseConnector connector, OutboxRepo
             """, parameters);
     }
 
-    public async Task<Result<Account, Error>> SaveChangesAsync(Account account, CancellationToken stoppingToken = default)
+    public async Task<Result<Account, Exception>> SaveChangesAsync(Account account, CancellationToken stoppingToken = default)
     {
         var result = account switch
         {
@@ -49,7 +49,7 @@ internal sealed class AccountRepository(IDatabaseConnector connector, OutboxRepo
         return result;
     }
 
-    private async Task<Result<Account, Error>> InsertAsync(Account account, CancellationToken stoppingToken = default)
+    private async Task<Result<Account, Exception>> InsertAsync(Account account, CancellationToken stoppingToken = default)
     {
         var parameters = new DynamicParameters(account);
 
@@ -77,7 +77,7 @@ internal sealed class AccountRepository(IDatabaseConnector connector, OutboxRepo
         return account;
     }
 
-    private async Task<Result<Account, Error>> UpdateAsync(Account account, CancellationToken stoppingToken = default)
+    private async Task<Result<Account, Exception>> UpdateAsync(Account account, CancellationToken stoppingToken = default)
     {
         var parameters = new DynamicParameters(account);
 
@@ -98,6 +98,6 @@ internal sealed class AccountRepository(IDatabaseConnector connector, OutboxRepo
                 AND ConcurrencyToken = @ConcurrencyToken;
             """, parameters);
 
-        return result == 1 ? account : new Error("Failed to update account.");
+        return result == 1 ? account : new ConcurrencyException("Failed to update account.");
     }
 }

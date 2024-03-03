@@ -50,7 +50,7 @@ internal sealed class BudgetRepository(IDatabaseConnector connector, OutboxRepos
             """, parameters);
     }
 
-    public async Task<Result<Budget, Error>> SaveChangesAsync(Budget model, CancellationToken stoppingToken = default)
+    public async Task<Result<Budget, Exception>> SaveChangesAsync(Budget model, CancellationToken stoppingToken = default)
     {
         var dt = new DataTable();
         dt.Columns.Add("BudgetLineId");
@@ -80,7 +80,7 @@ internal sealed class BudgetRepository(IDatabaseConnector connector, OutboxRepos
         var result = await connection.QuerySingleAsync<int>(SaveChangesProcedure, parameters, commandType: CommandType.StoredProcedure);
 
         if (result <= 0)
-            return new Error("Budget saving failed.");
+            return new Exception("Budget saving failed.");
 
         await base.SaveChangesAsync(model, stoppingToken);
         return model;

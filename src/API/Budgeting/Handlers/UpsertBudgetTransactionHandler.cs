@@ -14,7 +14,7 @@ internal static class UpsertBudgetTransactionHandler
 
         var line = await budgetRepository.GetLineByIdAsync(id, stoppingToken);
         if (line is not null && (
-                line.AccountId != accountId || 
+                line.AccountId != accountId ||
                 line.TransactionDate.Year != request.TransactionDate.Year ||
                 line.TransactionDate.Month != request.TransactionDate.Month)
             )

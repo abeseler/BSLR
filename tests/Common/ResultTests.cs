@@ -1,6 +1,6 @@
 ﻿using Beseler.Domain.Common;
 
-namespace Beseler.Domain.Tests.Common;
+namespace Beseler.Tests.Common;
 
 public sealed class ResultTests
 {
@@ -11,7 +11,7 @@ public sealed class ResultTests
         Success success = new();
 
         // Act
-        var result = (Result<Success, Error>)success;
+        var result = (Result<Success, Exception>)success;
 
         // Assert
         result.IsSuccess.Should().BeTrue();
@@ -22,10 +22,10 @@ public sealed class ResultTests
     public void IsFailure_ReturnsTrue_WhenResultIsFailure()
     {
         // Arrange
-        Error error = new();
+        Exception error = new();
 
         // Act
-        var result = (Result<Success, Error>)error;
+        var result = (Result<Success, Exception>)error;
 
         // Assert
         result.IsSuccess.Should().BeFalse();
@@ -39,7 +39,7 @@ public sealed class ResultTests
         Success success = new();
 
         // Act
-        var result = (Result<Success, Error>)success;
+        var result = (Result<Success, Exception>)success;
 
         // Assert
         result.Match(onSuccess: _ => true, onFailure: _ => false).Should().BeTrue();
@@ -49,10 +49,10 @@ public sealed class ResultTests
     public void Match_ExecutesOnFailure_WhenResultIsFailure()
     {
         // Arrange
-        Error error = new();
+        Exception error = new();
 
         // Act
-        var result = (Result<Success, Error>)error;
+        var result = (Result<Success, Exception>)error;
 
         // Assert
         result.Match(onSuccess: _ => false, onFailure: _ => true).Should().BeTrue();

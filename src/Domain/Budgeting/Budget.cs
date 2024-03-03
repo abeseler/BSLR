@@ -27,13 +27,13 @@ public sealed class Budget : Aggregate
         };
     }
 
-    public Result<Success, Error> AddLine(Guid id, BudgetLineType type, string description, DateOnly date, decimal amount)
+    public Result<Success, Exception> AddLine(Guid id, BudgetLineType type, string description, DateOnly date, decimal amount)
     {
         if (_lines.Any(l => l.BudgetLineId == id))
-            return new Error("Line already exists.");
+            return new Exception("Line already exists.");
 
         if (Start.Year != date.Year || Start.Month != date.Month)
-            return new Error("Line date does not match budget month.");
+            return new Exception("Line date does not match budget month.");
 
         if (IsInvalidAmount(type, amount, out var amountError))
             return amountError!;
@@ -54,14 +54,14 @@ public sealed class Budget : Aggregate
         return Success.Default;
     }
 
-    public Result<Success, Error> UpdateLine(Guid id, DateOnly date, string description, decimal amount)
+    public Result<Success, Exception> UpdateLine(Guid id, DateOnly date, string description, decimal amount)
     {
         var line = _lines.FirstOrDefault(l => l.BudgetLineId == id);
         if (line is null)
-            return new Error("Line does not exist.");
+            return new Exception("Line does not exist.");
 
         if (Start.Year != date.Year || Start.Month != date.Month)
-            return new Error("Line date does not match budget month.");
+            return new Exception("Line date does not match budget month.");
 
         if (IsInvalidAmount(line.LineType, amount, out var amountError))
             return amountError!;
@@ -82,11 +82,11 @@ public sealed class Budget : Aggregate
         return Success.Default;
     }
 
-    public Result<Success, Error> RemoveLine(Guid id)
+    public Result<Success, Exception> RemoveLine(Guid id)
     {
         var line = _lines.FirstOrDefault(l => l.BudgetLineId == id);
         if (line is null)
-            return new Error("Line does not exist.");
+            return new Exception("Line does not exist.");
 
         EndingBalance -= line.Amount;
         _lines.Remove(line);
@@ -95,13 +95,13 @@ public sealed class Budget : Aggregate
         return Success.Default;
     }
 
-    private static bool IsInvalidAmount(BudgetLineType type, decimal amount, out Error? error)
+    private static bool IsInvalidAmount(BudgetLineType type, decimal amount, out Exception? error)
     {
         error = (type, amount) switch
         {
-            (_, 0) => new Error("Amount cannot be zero."),
-            (BudgetLineType.Income, < 0) => new Error("Income amount must be greater than zero."),
-            (BudgetLineType.Expense, > 0) => new Error("Expense amount must be less than zero."),
+            (_, 0) => new Exception("Amount cannot be zero."),
+            (BudgetLineType.Income, < 0) => new Exception("Income amount must be greater than zero."),
+            (BudgetLineType.Expense, > 0) => new Exception("Expense amount must be less than zero."),
             _ => null
         };
 

@@ -17,6 +17,12 @@ public readonly struct Result<TValue, TError> where TValue : class where TError 
     public TResult Match<TResult>(Func<TValue, TResult> onSuccess, Func<TError, TResult> onFailure)
         => IsSuccess ? onSuccess(_value!) : onFailure(_error!);
 
+    public void Deconstruct(out TValue? value, out TError? error)
+    {
+        value = _value;
+        error = _error;
+    }
+
     public static implicit operator Result<TValue, TError>(TValue value) => new(value);
     public static implicit operator Result<TValue, TError>(TError error) => new(error);
 
@@ -26,11 +32,5 @@ public readonly struct Result<TValue, TError> where TValue : class where TError 
 public sealed record Success(string? Message = null)
 {
     public static Success Default { get; } = new();
-    public bool HasMessage => string.IsNullOrWhiteSpace(Message) is false;
-}
-
-public sealed record Error(string? Message = null)
-{
-    public static Error Default { get; } = new();
     public bool HasMessage => string.IsNullOrWhiteSpace(Message) is false;
 }
