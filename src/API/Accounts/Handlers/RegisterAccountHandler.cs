@@ -1,4 +1,5 @@
 ﻿using Beseler.Domain.Accounts;
+using Beseler.Infrastructure.Data;
 using Beseler.Shared.Accounts.Requests;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
@@ -29,7 +30,7 @@ internal static class RegisterAccountHandler
 
         return saveResult.Match<IResult>(
             onSuccess: _ => TypedResults.NoContent(),
-            onFailure: error => TypedResults.UnprocessableEntity(error.Message));
+            onFailure: error => error is ConcurrencyException ? TypedResults.Conflict(error.Message) : TypedResults.Problem(error.Message));
 
     }
 }

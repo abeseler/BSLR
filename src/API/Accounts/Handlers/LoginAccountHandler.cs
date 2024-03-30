@@ -1,4 +1,5 @@
 ﻿using Beseler.Domain.Accounts;
+using Beseler.Infrastructure.Data;
 using Beseler.Infrastructure.Services.Jwt;
 using Beseler.Shared.Accounts.Requests;
 using Beseler.Shared.Accounts.Responses;
@@ -53,6 +54,6 @@ internal static class LoginAccountHandler
 
         return saveResult.Match<IResult>(
             onSuccess: _ => TypedResults.Ok(response),
-            onFailure: error => TypedResults.Problem(error.Message));
+            onFailure: error => error is ConcurrencyException ? TypedResults.Conflict(error.Message) : TypedResults.Problem(error.Message));
     }
 }

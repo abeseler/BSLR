@@ -28,6 +28,7 @@ public static class Registrar
             .AddValidatorsFromAssemblyContaining<Program>()
             .AddSingleton<ILogEventEnricher, HttpContextLogEnricher>()
             .AddTransient<IPasswordHasher<Account>, PasswordHasher<Account>>()
+            .AddScoped<ETagConditions>()
             .AddScoped<CookieService>()
             .AddDomainEventHandler<SendVerificationEmailWhenAccountCreatedHandler, AccountCreatedDomainEvent>()
             .AddDomainEventHandler<SendAccountLockedEmailWhenAccountLockedHandler, AccountLockedDomainEvent>();

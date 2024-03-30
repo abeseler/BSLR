@@ -3,6 +3,7 @@
     "BSLR": {
       "commandName": "Project",
       "launchBrowser": true,
+      "launchUrl": "_swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "ConnectionStrings__Database": "Server=localhost,1433;Database=App;User=sa;Password=P@ssw0rd;Encrypt=False",
